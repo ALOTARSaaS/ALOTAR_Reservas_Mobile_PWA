@@ -1,0 +1,3 @@
+ALOTAR Booking App v2.4.0 RELEASE CANDIDATE
+PWA multiempresa limpia para publicación
+2026-09-09

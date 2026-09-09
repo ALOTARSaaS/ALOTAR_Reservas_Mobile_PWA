@@ -1,0 +1,4475 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>ALOTAR Booking</title>
+
+<meta name="theme-color" content="#060913">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ALOTAR Booking">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+
+<style>
+:root{
+  --bg:#060913;
+  --bg-2:#0a1020;
+  --panel:#0d1522;
+  --panel-soft:#121c2d;
+  --panel-strong:#0a1120;
+  --border:#1f2a3a;
+
+  --text:#e6edf7;
+  --muted:#8fa3bf;
+
+  --primary:#38bdf8;
+  --primary-soft:rgba(56,189,248,.14);
+  --success:#22c55e;
+  --warning:#fbbf24;
+  --danger:#fb7185;
+
+  --gold:#d4af37;
+  --gold-soft:#f9e27d;
+  --silver:#cbd5e1;
+  --copper:#b45309;
+
+  --radius:14px;
+  --pad:14px;
+  --shadow:
+    inset 0 0 0 1px rgba(255,255,255,.03),
+    0 20px 60px rgba(0,0,0,.65),
+    0 0 24px rgba(56,189,248,.05);
+}
+
+*{ box-sizing:border-box; }
+
+html, body{
+  height:100%;
+}
+
+html{
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  margin:0;
+  padding:14px;
+  min-height:100vh;
+
+  background:
+    radial-gradient(900px 500px at 80% 0%, rgba(212,175,55,.05), transparent 60%),
+    radial-gradient(700px 400px at 0% 18%, rgba(56,189,248,.10), transparent 55%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+
+  color:var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.container{
+  width:100%;
+  max-width:980px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+
+  min-height:calc(100vh - 28px); /* 🔥 clave */
+}
+
+.container.ready{
+  opacity:1;
+  transform:translateY(0);
+}
+
+
+
+.card{
+  position:relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), transparent 30%),
+    linear-gradient(180deg, rgba(212,175,55,.04), transparent 60%),
+    var(--panel);
+
+  border:1px solid rgba(212,175,55,.25); /* borde dorado suave */
+
+  border-radius:var(--radius);
+  padding:var(--pad);
+  margin-bottom:14px;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 20px 60px rgba(0,0,0,.65),
+    0 0 18px rgba(212,175,55,.08);
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+
+  background:
+    linear-gradient(120deg,
+      transparent 20%,
+      rgba(255,255,255,.08) 40%,
+      transparent 60%
+    );
+
+  opacity:.35;
+  pointer-events:none;
+}
+
+.card.gold{
+  border:1px solid rgba(212,175,55,.42);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 20px 60px rgba(0,0,0,.65),
+    0 0 22px rgba(212,175,55,.14);
+}
+
+.card.silver{
+  border:1px solid rgba(203,213,225,.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 20px 60px rgba(0,0,0,.65),
+    0 0 20px rgba(203,213,225,.10);
+}
+
+.row{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:12px;
+}
+
+@media (min-width:768px){
+  .row{
+    grid-template-columns: 1fr 1fr;
+    align-items:end;
+  }
+}
+
+label{
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:block;
+  margin-top:10px;
+}
+
+select, input{
+  width:100%;
+  height:48px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--text);
+  font-size:16px;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+select:focus, input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(56,189,248,.24);
+}
+
+input[readonly]{
+  opacity:.9;
+  border-color:rgba(56,189,248,.24);
+}
+
+button{
+  min-height:46px;
+  border-radius:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--text);
+  cursor:pointer;
+  width:100%;
+  transition:transform .14s ease, box-shadow .18s ease, border-color .18s ease, opacity .18s ease;
+}
+
+button:hover:not(:disabled){
+  transform:translateY(-1px);
+}
+
+
+
+button.primary{
+  background:linear-gradient(180deg, rgba(56,189,248,.40), rgba(56,189,248,.14));
+  border-color:rgba(56,189,248,.55);
+  color:#e0f2fe;
+  box-shadow:0 0 14px rgba(56,189,248,.18);
+}
+
+button.primary:hover:not(:disabled){
+  box-shadow:0 8px 22px rgba(56,189,248,.22);
+}
+
+button.secondary{
+  background:rgba(255,255,255,.04);
+  color:var(--silver);
+}
+
+button.secondary:hover:not(:disabled){
+  border-color:rgba(203,213,225,.28);
+}
+
+button.warn{
+  background:linear-gradient(180deg, rgba(251,191,36,.24), rgba(180,83,9,.10));
+  border-color:rgba(251,191,36,.42);
+  color:#fffbeb;
+  box-shadow:0 0 14px rgba(251,191,36,.08);
+}
+
+button.warn:hover:not(:disabled){
+  box-shadow:0 8px 22px rgba(251,191,36,.14);
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.muted{ color:var(--muted); }
+.ok{ color:var(--success); font-weight:900; }
+.err{ color:var(--danger); font-weight:900; }
+.warnTxt{ color:var(--warning); font-weight:900; }
+
+.slots{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:10px;
+  
+}
+
+
+.otpBoxes{
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:10px;
+  margin-top:8px;
+}
+
+.otpBox{
+  width:100%;
+  min-height:64px;
+  height:64px;
+  text-align:center;
+  font-size:24px;
+  font-weight:900;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--text);
+  padding:0;
+}
+
+.otpBox:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(56,189,248,.24);
+}
+
+.otpBox:disabled{
+  opacity:.5;
+}
+
+@media screen and (max-width:640px){
+  .otpBoxes{
+    gap:8px;
+  }
+
+  .otpBox{
+    min-height:58px;
+    height:58px;
+    font-size:22px;
+    border-radius:14px;
+  }
+}
+
+@media (min-width:1024px){
+  .slots{ grid-template-columns: repeat(4, 1fr); }
+}
+
+
+.slot{
+  position:relative;
+  overflow:hidden;
+  padding:10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), transparent),
+    #020617;
+  color:var(--text);
+  font-weight:900;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color .18s ease, box-shadow .18s ease, transform .14s ease;
+}
+
+.slot:hover{
+  border-color:var(--primary);
+  box-shadow:0 0 14px rgba(56,189,248,.18);
+  transform:translateY(-1px);
+}
+
+.slot.selected{
+  background:linear-gradient(180deg, rgba(34,197,94,.48), rgba(34,197,94,.20));
+  border-color:var(--success);
+  color:#052e16;
+  box-shadow:0 0 18px rgba(34,197,94,.24);
+}
+
+.hidden{ 
+     display:none !important;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:2px 0 14px;
+  padding:14px 16px;
+  border:1px solid rgba(212,175,55,.18);
+  border-radius:18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), transparent 30%),
+    linear-gradient(180deg, rgba(212,175,55,.03), transparent 60%),
+    rgba(13,21,34,.72);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 14px 36px rgba(0,0,0,.35),
+    0 0 18px rgba(212,175,55,.06);
+}
+
+
+
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:54px;
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), transparent),
+    rgba(56,189,248,.08);
+  border:1px solid rgba(56,189,248,.24);
+  box-shadow:
+    0 0 14px rgba(56,189,248,.10),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+  font-size:20px;
+  overflow:hidden;
+}
+
+
+
+.brandLogoImg{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  border-radius:12px;
+}
+
+.brandTitle{
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text);
+  font-size:20px;
+  text-shadow:0 0 10px rgba(212,175,55,.06);
+}
+
+.brandSub{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+
+.statusPill{
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), transparent),
+    rgba(255,255,255,.03);
+  color:var(--silver);
+  font-weight:900;
+  letter-spacing:.10em;
+  white-space:nowrap;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 0 14px rgba(56,189,248,.05);
+}
+
+.date-wrap{
+  position:relative;
+  display:block;
+}
+
+#date{
+  width:100%;
+  padding-right:56px;
+  position:relative;
+  z-index:1;
+}
+
+.date-wrap .icon-btn:hover{
+  border-color:var(--primary);
+  box-shadow:0 0 0 2px rgba(56,189,248,.16);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator{
+  opacity:0;
+  position:absolute;
+  right:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+}
+
+.icon-decor{
+  display:none;
+}
+
+.icon-btn{
+  position:absolute;
+  top:50%;
+  right:8px;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  border:1px solid rgba(56,189,248,.35);
+  background:rgba(56,189,248,.12);
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  padding:0;
+  cursor:pointer;
+  z-index:20;
+  pointer-events:auto;
+}
+
+@media (max-width:1024px){
+  .icon-btn{ display:flex; }
+/* =====================================================
+   MOBILE FORM LAYOUT
+===================================================== */
+
+.row{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:14px !important;
+}
+
+.row > div{
+  width:100% !important;
+}
+
+.slots{
+  grid-template-columns:1fr !important;
+}
+
+button.primary,
+button.secondary,
+button.warn{
+  width:100% !important;
+}
+
+/* Inputs más cómodos táctiles */
+
+select,
+input{
+  width:100% !important;
+  min-height:58px !important;
+  font-size:16px !important;
+}
+
+/* Labels más visibles */
+
+label{
+  font-size:12px !important;
+  margin-bottom:6px !important;
+}
+
+/* Botón principal destacado */
+
+#btnAvailability,
+#btnReserve{
+  min-height:60px !important;
+  font-size:17px !important;
+  font-weight:900 !important;
+}
+
+/* =====================================================
+   MOBILE TYPOGRAPHY
+===================================================== */
+
+body{
+  font-size:16px !important;
+}
+
+/* TITULO */
+
+.brandTitle{
+  font-size:22px !important;
+  line-height:1.15 !important;
+  letter-spacing:.04em !important;
+}
+
+.brandSub{
+  font-size:13px !important;
+  line-height:1.35 !important;
+}
+
+/* LABELS */
+
+label{
+  font-size:13px !important;
+  font-weight:800 !important;
+  letter-spacing:.06em !important;
+}
+
+/* INPUTS */
+
+select,
+input{
+  font-size:17px !important;
+  font-weight:600 !important;
+}
+
+/* DURACIÓN */
+
+#duration{
+  font-size:18px !important;
+  font-weight:900 !important;
+}
+
+/* BOTONES */
+
+button{
+  font-size:17px !important;
+  font-weight:900 !important;
+}
+
+/* MENSAJES */
+
+#msg,
+#msgOtp,
+#msgReserve{
+  font-size:13px !important;
+  line-height:1.45 !important;
+}
+
+/* HORARIOS */
+
+.slot{
+  font-size:16px !important;
+  font-weight:900 !important;
+}
+
+.slot .cap{
+  font-size:11px !important;
+}
+
+/* STATUS */
+
+.statusPill{
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+
+}
+
+
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.hr{
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--border), transparent);
+  margin:12px 0;
+  opacity:.95;
+}
+
+.slot .t{
+  font-weight:900;
+  line-height:1.1;
+}
+
+.slot .bar{
+  margin-top:6px;
+  height:10px;
+  border-radius:999px;
+  border:1px solid rgba(56,189,248,.22);
+  background:rgba(2,6,23,.55);
+  overflow:hidden;
+  position:relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.slot .pbar{
+  --p: 0%;
+  margin-top:8px;
+  height:12px;
+  border-radius:999px;
+  border:1px solid rgba(56,189,248,.22);
+  background:rgba(2,6,23,.55);
+  overflow:hidden;
+  position:relative;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.slot .pbar::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  width:var(--p);
+  background:linear-gradient(180deg, rgba(34,197,94,.95), rgba(34,197,94,.55));
+  box-shadow:0 0 14px rgba(34,197,94,.18);
+  transition:width .25s ease;
+}
+
+.slot .pbar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.06) 0px,
+      rgba(255,255,255,.06) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  mix-blend-mode:overlay;
+  opacity:.35;
+  pointer-events:none;
+}
+
+.slot .cap{
+  margin-top:6px;
+  font-size:11px;
+  letter-spacing:.10em;
+  color:rgba(159,176,201,.9);
+  text-transform:uppercase;
+}
+
+@keyframes scanLine{
+  0%   { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(240%) skewX(-18deg); }
+}
+
+.slot .bar .seg.on{
+  animation: segOn .28s ease-out both;
+}
+
+@keyframes segOn{
+  from { filter: brightness(.7); transform: scaleX(.92); }
+  to   { filter: brightness(1.05); transform: scaleX(1); }
+}
+
+.footerLogoAlotar{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  display:block;
+
+  margin:0 0 -8px 0;
+
+  filter:
+    drop-shadow(0 0 8px rgba(56,189,248,.25))
+    drop-shadow(0 0 12px rgba(212,175,55,.25));
+}
+
+
+.footerBrand{
+
+  margin-top:auto;
+
+  padding:28px 0 20px;
+
+  border-top:1px solid rgba(255,255,255,.06);
+
+  display:flex;
+  justify-content:center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.01),
+      rgba(0,0,0,.18)
+    );
+
+  position:relative;
+}
+
+.footerInner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0;
+  line-height:1.05;
+}
+
+.footerTitle{
+
+  margin-top:-20px;
+  margin-bottom:4px;
+
+  font-weight:900;
+  font-size:28px;
+
+  letter-spacing:.08em;
+
+  background:linear-gradient(
+    90deg,
+    #d4af37,
+    #fff3b0,
+    #f9e27d,
+    #d4af37
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 0 8px rgba(212,175,55,.35),
+    0 0 18px rgba(212,175,55,.20);
+}
+
+.footerSub{
+
+  font-size:15px;
+  color:#cbd5e1;
+
+  margin-top:0;
+
+  letter-spacing:.04em;
+}
+
+.footerCopy{
+
+  font-size:13px;
+  color:#7c8aa0;
+
+  margin-top:4px;
+}
+
+.bootScreen{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(900px 500px at 80% 0%, rgba(212,175,55,.06), transparent 60%),
+    radial-gradient(700px 400px at 0% 18%, rgba(56,189,248,.10), transparent 55%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+  transition:opacity .3s ease, visibility .3s ease;
+}
+
+.bootScreen.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.bootInner.bootHero{
+
+  width:min(760px, calc(100vw - 32px));
+
+  padding:28px 30px;
+
+  border-radius:24px;
+
+  border:1px solid rgba(249,226,125,.62);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10,16,32,.96),
+      rgba(6,9,19,.96)
+    );
+
+  backdrop-filter:blur(18px);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.72),
+    0 0 22px rgba(212,175,55,.22),
+    0 0 48px rgba(212,175,55,.14),
+    0 0 40px rgba(56,189,248,.08),
+    inset 0 0 0 1px rgba(255,248,210,.18);
+}
+
+.bootCompanyRow{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.bootLogoWrap{
+  width:90px;
+  height:90px;
+  min-width:90px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:20px;
+  overflow:hidden;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent),
+    rgba(56,189,248,.10);
+
+  border:1px solid rgba(56,189,248,.30);
+
+  box-shadow:
+    0 0 30px rgba(56,189,248,.18),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+#bootLogoImg{
+  width:130%;
+  height:130%;
+  object-fit:contain;
+}
+
+#bootLogoFallback{
+  font-weight:900;
+  font-size:26px;
+  letter-spacing:.08em;
+  color:var(--gold);
+}
+
+.bootCompanyMeta{
+  min-width:0;
+}
+
+.bootBrand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+
+  font-weight:900;
+  font-size:30px;
+  line-height:1.05;
+  letter-spacing:.08em;
+  text-transform:none;
+}
+
+.bootPowered{
+  margin-right:6px;
+
+  background:linear-gradient(
+    90deg,
+    #d4af37,
+    #f9e27d,
+    #d4af37
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 0 6px rgba(212,175,55,.25),
+    0 0 12px rgba(212,175,55,.15);
+}
+
+.bootAlotar{
+  background:linear-gradient(
+    90deg,
+    #d4af37,
+    #f9e27d,
+    #d4af37
+  );
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:
+    0 0 6px rgba(212,175,55,.25),
+    0 0 12px rgba(212,175,55,.15);
+}
+
+.bootSub{
+
+  margin-top:6px;
+
+  font-size:15px;
+
+  font-weight:700;
+
+  color:#cbd5e1;
+
+  letter-spacing:.04em;
+
+  text-transform:none;
+
+  opacity:.95;
+
+  text-shadow:
+    0 0 10px rgba(0,0,0,.45);
+}
+
+.bootContact{
+
+  margin-top:12px;
+
+  font-size:13px;
+
+  color:#e2e8f0;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  padding:8px 14px;
+
+  border-radius:999px;
+
+  background:rgba(255,255,255,.04);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    0 0 12px rgba(56,189,248,.06);
+}
+
+.bootContact a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.bootMsg{
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--silver);
+  font-size:14px;
+  letter-spacing:.04em;
+}
+
+@media screen and (max-width:1024px){
+
+  body{
+    padding:0;
+    background:
+      linear-gradient(180deg, #0a1020 0%, #060913 100%);
+  }
+
+  .container{
+    width:100%;
+    max-width:100%;
+    margin:0;
+    padding:10px;
+    min-height:auto;
+  }
+
+  .topbar{
+    margin:0 0 10px 0;
+    padding:10px 12px;
+    border-radius:16px;
+    background:rgba(13,21,34,.92);
+    border:1px solid rgba(255,255,255,.06);
+    box-shadow:none;
+  }
+
+  .brand{
+    gap:10px;
+    align-items:center;
+  }
+
+  .logo{
+    width:50px;
+    height:50px;
+    min-width:42px;
+    border-radius:12px;
+  }
+
+  .brandTitle{
+    font-size:25px;
+    letter-spacing:.04em;
+    line-height:1.1;
+  }
+
+  .brandSub{
+    font-size:20px;
+    line-height:1.2;
+    margin-top:2px;
+  }
+
+  .statusPill{
+    margin-top:2px;
+    font-size:22px;
+    padding:6px 10px;
+    letter-spacing:.04em;
+  }
+
+  
+
+  .card::before{
+    display:none;
+  }
+
+  #cardOtp,
+  #cardConfirm,
+  #cardBookingFlow{
+    width:100%;
+  }
+
+  #cardOtp h3,
+  #cardConfirm h3{
+    font-size:20px;
+    line-height:1.15;
+    letter-spacing:.04em;
+    margin-bottom:6px;
+  }
+
+  #cardOtp .small,
+  #cardConfirm .small{
+    font-size:18px;
+    line-height:1.45;
+    margin-top:4px !important;
+  }
+
+   label{
+    font-size:18px;
+    margin-top:16px;
+    margin-bottom:8px;
+    letter-spacing:.05em;
+  }
+
+  select,
+  input{
+    height:64px;
+    font-size:18px;
+    padding:16px 18px;
+    border-radius:18px;
+  }
+
+  #otpCode{
+    height:68px;
+    font-size:24px;
+    letter-spacing:.18em;
+    font-weight:900;
+  }
+
+  .row{
+    gap:14px;
+  }
+
+  .card{
+    padding:20px;
+    border-radius:18px;
+  }
+
+  button{
+    min-height:56px;
+    font-size:18px;
+    border-radius:18px;
+  }
+
+
+  
+
+  
+
+  #otpSummary,
+  #summary{
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+    font-size:18px;
+    line-height:1.45;
+  }
+
+  #msg,
+  #msgOtp,
+  #msgReserve{
+    font-size:12px;
+    line-height:1.4;
+    margin-top:10px !important;
+  }
+
+  .slots{
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
+  }
+
+  .slot{
+    padding:12px 8px;
+    font-size:13px;
+    border-radius:16px;
+  }
+
+  .slot .cap{
+    font-size:9px;
+  }
+
+  .footerBrand{
+    display:none;
+  }
+
+  .bootInner.bootHero{
+    width:calc(100vw - 20px);
+    padding:18px 14px;
+    border-radius:16px;
+  }
+
+  .bootLogoWrap{
+    width:60px;
+    height:60px;
+    min-width:60px;
+    border-radius:14px;
+  }
+
+  .bootBrand{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  flex-wrap:wrap;
+
+  font-weight:900;
+
+  font-size:38px;
+
+  line-height:1;
+
+  letter-spacing:.06em;
+
+  text-transform:none;
+
+  text-shadow:
+    0 0 20px rgba(212,175,55,.18);
+}
+
+  .bootSub{
+    font-size:11px;
+  }
+
+  .bootContact{
+    font-size:10px;
+    padding:3px 7px;
+  }
+
+  .bootMsg{
+    font-size:11px;
+  }
+}
+
+/* =====================================================
+   PUBLIC BOOKING · INDUSTRY THEMES
+===================================================== */
+
+body.industry-aero{
+  --bg:#15191f;
+  --bg-2:#232932;
+  --panel:#252d38;
+  --panel-soft:#313b48;
+  --border:rgba(125,211,252,.18);
+  --text:#f4f7fb;
+  --muted:#b9c7d8;
+  --primary:#7dd3fc;
+}
+
+body.industry-spa{
+  --bg:#f4eadc;
+  --bg-2:#fffaf2;
+  --panel:#ffffff;
+  --panel-soft:#fff6e8;
+  --border:rgba(184,115,51,.18);
+  --text:#2a2118;
+  --muted:#7a6a58;
+  --primary:#b87333;
+}
+
+body.industry-belleza{
+  --bg:#fff1f5;
+  --bg-2:#fff8fa;
+  --panel:#ffffff;
+  --panel-soft:#fff5f8;
+  --border:rgba(159,18,57,.18);
+  --text:#28121a;
+  --muted:#7a5b65;
+  --primary:#9f1239;
+}
+
+body.industry-salud{
+  --bg:#edf8f3;
+  --bg-2:#f8fffb;
+  --panel:#ffffff;
+  --panel-soft:#f5fbf8;
+  --border:rgba(4,120,87,.18);
+  --text:#17231d;
+  --muted:#5f7168;
+  --primary:#047857;
+}
+
+body.industry-educacion{
+  --bg:#eef5ff;
+  --bg-2:#fbfdff;
+  --panel:#ffffff;
+  --panel-soft:#f6faff;
+  --border:rgba(37,99,235,.18);
+  --text:#142033;
+  --muted:#5f6f85;
+  --primary:#2563eb;
+}
+
+body.industry-otro{
+  --bg:#f5f1e8;
+  --bg-2:#fffdf8;
+  --panel:#ffffff;
+  --panel-soft:#fbf8ef;
+  --border:rgba(139,111,42,.18);
+  --text:#241f17;
+  --muted:#756b5b;
+  --primary:#8b6f2a;
+}
+
+/* Fondo dinámico */
+body{
+  background:
+    radial-gradient(900px 500px at 80% 0%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 60%),
+    radial-gradient(700px 400px at 0% 18%, rgba(212,175,55,.08), transparent 55%),
+    linear-gradient(180deg, var(--bg-2), var(--bg)) !important;
+}
+
+/* Temas claros */
+body:not(.industry-aero) .card,
+body:not(.industry-aero) .topbar,
+body:not(.industry-aero) .bootInner.bootHero{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.84)) !important;
+  border-color:var(--border) !important;
+  color:var(--text) !important;
+  box-shadow:0 12px 32px rgba(15,23,42,.08) !important;
+}
+
+body:not(.industry-aero) input,
+body:not(.industry-aero) select,
+body:not(.industry-aero) .otpBox{
+  background:#ffffff !important;
+  color:var(--text) !important;
+  border-color:rgba(15,23,42,.10) !important;
+}
+
+body:not(.industry-aero) button,
+body:not(.industry-aero) .slot{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), var(--panel-soft)) !important;
+  color:var(--text) !important;
+  border-color:var(--border) !important;
+}
+
+body:not(.industry-aero) button.primary{
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 18%, white), rgba(255,255,255,.92)) !important;
+  color:var(--text) !important;
+  border-color:color-mix(in srgb, var(--primary) 34%, transparent) !important;
+}
+
+body:not(.industry-aero) .brandTitle,
+body:not(.industry-aero) h3,
+body:not(.industry-aero) .slot .t{
+  color:var(--text) !important;
+}
+
+body:not(.industry-aero) .brandSub,
+body:not(.industry-aero) .small,
+body:not(.industry-aero) .muted,
+body:not(.industry-aero) label,
+body:not(.industry-aero) .footerSub,
+body:not(.industry-aero) .footerCopy{
+  color:var(--muted) !important;
+}
+
+/* Aeronáutico conserva oscuro */
+body.industry-aero .card,
+body.industry-aero .topbar{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.04), transparent 34%),
+    var(--panel) !important;
+  border-color:rgba(125,211,252,.18) !important;
+}
+
+/* =====================================================
+   PUBLIC BOOKING · MOBILE PREMIUM UX
+===================================================== */
+
+@media(max-width:640px){
+
+  body{
+    padding:0 !important;
+  }
+
+  .container{
+    padding:10px !important;
+    min-height:100vh !important;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+
+    align-items:flex-start !important;
+    gap:10px !important;
+
+    border-radius:0 0 22px 22px !important;
+    margin:-10px -10px 12px !important;
+    padding:14px 14px !important;
+
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+  }
+
+  .brand{
+    width:100%;
+    align-items:center !important;
+  }
+
+  .logo{
+    width:56px !important;
+    height:56px !important;
+    min-width:56px !important;
+    border-radius:16px !important;
+  }
+
+  .brandTitle{
+    font-size:18px !important;
+    line-height:1.15 !important;
+    letter-spacing:.04em !important;
+  }
+
+  .brandSub{
+    font-size:12px !important;
+    line-height:1.35 !important;
+  }
+
+  .statusPill{
+    width:100%;
+    text-align:center;
+    font-size:11px !important;
+    padding:9px 12px !important;
+  }
+
+  .card{
+    padding:16px !important;
+    border-radius:22px !important;
+    margin-bottom:12px !important;
+  }
+
+  .row{
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+
+  label{
+    font-size:11px !important;
+    margin-top:12px !important;
+    margin-bottom:6px !important;
+  }
+
+  input,
+  select{
+    height:54px !important;
+    min-height:54px !important;
+    font-size:16px !important;
+    border-radius:16px !important;
+  }
+
+  button{
+    min-height:54px !important;
+    font-size:14px !important;
+    border-radius:16px !important;
+    letter-spacing:.05em !important;
+  }
+
+  .slots{
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+
+  .slot{
+    min-height:54px !important;
+    border-radius:18px !important;
+    font-size:15px !important;
+  }
+
+  .otpBoxes{
+    gap:7px !important;
+  }
+
+  .otpBox{
+    height:52px !important;
+    min-height:52px !important;
+    font-size:22px !important;
+    border-radius:14px !important;
+  }
+
+  #cardOtp h3,
+  #cardConfirm h3{
+    font-size:16px !important;
+    line-height:1.25 !important;
+  }
+
+  .small,
+  .muted,
+  #summary,
+  #otpSummary{
+    font-size:13px !important;
+    line-height:1.55 !important;
+  }
+
+  .bootInner.bootHero{
+    width:calc(100vw - 24px) !important;
+    padding:18px !important;
+    border-radius:22px !important;
+  }
+
+  .bootCompanyRow{
+    flex-direction:column !important;
+    text-align:center !important;
+  }
+
+  .bootLogoWrap{
+    width:82px !important;
+    height:82px !important;
+    min-width:82px !important;
+  }
+
+  .bootBrand{
+    justify-content:center !important;
+    font-size:20px !important;
+  }
+
+  .bootSub{
+    font-size:12px !important;
+  }
+
+  .bootContact{
+    justify-content:center !important;
+    font-size:12px !important;
+  }
+}
+
+/* =====================================================
+   PUBLIC BOOKING · ADAPTIVE MOBILE LAYOUT
+===================================================== */
+
+/* TABLET / IPAD VERTICAL */
+@media (min-width:641px) and (max-width:900px){
+
+  .container{
+    max-width:760px !important;
+    padding:14px !important;
+  }
+
+  .row{
+    grid-template-columns:1fr 1fr !important;
+  }
+
+  .slots{
+    grid-template-columns:repeat(3,1fr) !important;
+  }
+
+  .card{
+    padding:20px !important;
+  }
+
+  input,
+  select,
+  button{
+    min-height:54px !important;
+  }
+}
+
+/* CELULARES GRANDES */
+@media (min-width:481px) and (max-width:640px){
+
+  .container{
+    padding:12px !important;
+  }
+
+  .topbar{
+    flex-direction:column !important;
+  }
+
+  .row{
+    grid-template-columns:1fr !important;
+  }
+
+  .slots{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+
+  .card{
+    padding:18px !important;
+  }
+
+  input,
+  select,
+  button{
+    min-height:54px !important;
+    font-size:16px !important;
+  }
+}
+
+/* CELULARES NORMALES */
+@media (min-width:361px) and (max-width:480px){
+
+  .container{
+    padding:10px !important;
+  }
+
+  .topbar{
+    flex-direction:column !important;
+    border-radius:0 0 20px 20px !important;
+  }
+
+  .brandTitle{
+    font-size:18px !important;
+  }
+
+  .brandSub{
+    font-size:12px !important;
+  }
+
+  .row,
+  .slots{
+    grid-template-columns:1fr !important;
+  }
+
+  .card{
+    padding:16px !important;
+  }
+
+  label{
+    font-size:11px !important;
+  }
+
+  input,
+  select,
+  button{
+    min-height:52px !important;
+    font-size:15px !important;
+  }
+
+  .otpBox{
+    height:50px !important;
+    min-height:50px !important;
+    font-size:20px !important;
+  }
+}
+
+/* CELULARES PEQUEÑOS */
+@media (max-width:360px){
+
+  .container{
+    padding:8px !important;
+  }
+
+  .topbar{
+    flex-direction:column !important;
+    padding:12px !important;
+  }
+
+  .logo{
+    width:46px !important;
+    height:46px !important;
+    min-width:46px !important;
+  }
+
+  .brandTitle{
+    font-size:16px !important;
+  }
+
+  .brandSub{
+    font-size:11px !important;
+  }
+
+  .statusPill{
+    width:100% !important;
+    font-size:10px !important;
+    padding:8px !important;
+  }
+
+  .card{
+    padding:14px !important;
+    border-radius:18px !important;
+  }
+
+  .row,
+  .slots{
+    grid-template-columns:1fr !important;
+  }
+
+  input,
+  select,
+  button{
+    min-height:50px !important;
+    font-size:14px !important;
+    border-radius:14px !important;
+  }
+
+  .otpBoxes{
+    gap:5px !important;
+  }
+
+  .otpBox{
+    height:46px !important;
+    min-height:46px !important;
+    font-size:18px !important;
+    border-radius:12px !important;
+  }
+
+  .small,
+  .muted,
+  #summary,
+  #otpSummary{
+    font-size:12px !important;
+  }
+}
+
+
+/* =====================================================
+   PUBLIC BOOKING · BIG CLEAN LOGO
+===================================================== */
+
+.logo{
+  width:135px !important;
+  height:135px !important;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+  padding:0 !important;
+}
+
+.brandLogoImg{
+  width:100% !important;
+  height:100% !important;
+
+  object-fit:contain !important;
+  border-radius:0 !important;
+
+  filter:
+    drop-shadow(0 0 10px rgba(212,175,55,.30))
+    drop-shadow(0 0 16px rgba(56,189,248,.18));
+}
+
+#brandLogoFallback{
+  font-size:42px !important;
+}
+
+.footerLogoAlotar{
+
+  width:140px;
+  height:140px;
+
+  object-fit:contain;
+  display:block;
+
+  margin:0 0 -25px 0;
+
+  filter:
+    drop-shadow(0 0 12px rgba(56,189,248,.18))
+    drop-shadow(0 0 22px rgba(212,175,55,.35))
+    drop-shadow(0 0 40px rgba(212,175,55,.18));
+
+  transition:
+    transform .25s ease,
+    filter .25s ease;
+}
+
+.footerLogoAlotar:hover{
+  transform:scale(1.04);
+
+  filter:
+    drop-shadow(0 0 16px rgba(56,189,248,.24))
+    drop-shadow(0 0 30px rgba(212,175,55,.45))
+    drop-shadow(0 0 60px rgba(212,175,55,.22));
+}
+
+/* =====================================================
+   FIX FINAL · BOOT SCREEN PREMIUM DARK
+===================================================== */
+
+.bootInner.bootHero{
+  width:min(760px, calc(100vw - 32px)) !important;
+  padding:28px 30px !important;
+  border-radius:24px !important;
+
+  border:1px solid rgba(212,175,55,.22) !important;
+
+  background:
+    linear-gradient(180deg, rgba(10,16,32,.97), rgba(6,9,19,.97)) !important;
+
+  color:#f8fafc !important;
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.72),
+    0 0 34px rgba(56,189,248,.10),
+    inset 0 0 0 1px rgba(255,255,255,.04) !important;
+}
+
+.bootSub{
+  color:#cbd5e1 !important;
+  opacity:1 !important;
+}
+
+.bootContact{
+  color:#e2e8f0 !important;
+  background:rgba(255,255,255,.05) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+}
+
+.bootMsg{
+  color:#cbd5e1 !important;
+}
+
+/* Evita que los temas claros laven el boot */
+body:not(.industry-aero) .bootInner.bootHero{
+  background:
+    linear-gradient(180deg, rgba(10,16,32,.97), rgba(6,9,19,.97)) !important;
+
+  color:#f8fafc !important;
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.72),
+    0 0 34px rgba(56,189,248,.10),
+    inset 0 0 0 1px rgba(255,255,255,.04) !important;
+}
+
+/* =====================================================
+   FIX FINAL · BOOT LOGO SIN RECUADRO
+===================================================== */
+
+.bootLogoWrap{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+}
+
+#bootLogoImg{
+  width:260px !important;
+  height:260px !important;
+  object-fit:contain !important;
+
+  filter:
+    drop-shadow(0 0 12px rgba(212,175,55,.35))
+    drop-shadow(0 0 18px rgba(56,189,248,.18)) !important;
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V1
+   Capa visual únicamente. No altera reservas, OTP ni JS.
+===================================================== */
+:root{
+  --alotar-gold:#d4af37;
+  --alotar-gold-soft:#f9e27d;
+  --alotar-gold-line:rgba(212,175,55,.52);
+  --alotar-gold-line-strong:rgba(249,226,125,.78);
+  --alotar-gold-glow:rgba(212,175,55,.18);
+  --alotar-gold-glow-strong:rgba(212,175,55,.30);
+}
+
+/* Tarjetas y cabecera: borde dorado permanente + glow premium */
+.card,
+.topbar,
+.bootInner.bootHero{
+  border-color:var(--alotar-gold-line) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 18px 48px rgba(0,0,0,.38),
+    0 0 18px var(--alotar-gold-glow) !important;
+  transition:
+    border-color .22s ease,
+    box-shadow .22s ease,
+    transform .18s ease,
+    background .22s ease;
+}
+
+.card:hover,
+.topbar:hover{
+  border-color:var(--alotar-gold-line-strong) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 22px 54px rgba(0,0,0,.42),
+    0 0 26px var(--alotar-gold-glow-strong) !important;
+}
+
+/* Campos: borde dorado permanente y foco luminoso */
+input,
+select,
+.otpBox{
+  border-color:rgba(212,175,55,.46) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.015),
+    0 0 0 1px rgba(212,175,55,.035) !important;
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled),
+.otpBox:hover:not(:disabled){
+  border-color:rgba(249,226,125,.72) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 0 16px rgba(212,175,55,.14) !important;
+}
+
+input:focus,
+select:focus,
+.otpBox:focus{
+  outline:none !important;
+  border-color:var(--alotar-gold-soft) !important;
+  box-shadow:
+    0 0 0 2px rgba(212,175,55,.18),
+    0 0 20px rgba(212,175,55,.24) !important;
+}
+
+/* Botones: firma dorada, manteniendo su color semántico */
+button,
+button.primary,
+button.secondary,
+button.warn{
+  border-color:rgba(212,175,55,.58) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 0 12px rgba(212,175,55,.09) !important;
+  transition:
+    transform .16s ease,
+    box-shadow .20s ease,
+    border-color .20s ease,
+    filter .20s ease,
+    opacity .18s ease !important;
+}
+
+button:hover:not(:disabled),
+button.primary:hover:not(:disabled),
+button.secondary:hover:not(:disabled),
+button.warn:hover:not(:disabled){
+  transform:translateY(-2px) !important;
+  border-color:var(--alotar-gold-line-strong) !important;
+  filter:brightness(1.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 10px 26px rgba(0,0,0,.26),
+    0 0 22px rgba(212,175,55,.24) !important;
+}
+
+button:active:not(:disabled){
+  transform:translateY(0) scale(.995) !important;
+}
+
+button:disabled{
+  border-color:rgba(212,175,55,.22) !important;
+}
+
+/* Horarios disponibles */
+.slot{
+  border-color:rgba(212,175,55,.45) !important;
+  box-shadow:0 0 0 1px rgba(212,175,55,.025) !important;
+}
+
+.slot:hover{
+  border-color:var(--alotar-gold-soft) !important;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.22),
+    0 0 20px rgba(212,175,55,.22) !important;
+  transform:translateY(-2px) !important;
+}
+
+/* Seleccionado mantiene verde de confirmación pero con aro premium */
+.slot.selected{
+  border-color:#86efac !important;
+  box-shadow:
+    0 0 0 1px rgba(212,175,55,.30),
+    0 0 22px rgba(34,197,94,.28),
+    0 0 30px rgba(212,175,55,.12) !important;
+}
+
+/* Pills y resúmenes */
+.statusPill,
+#otpSummary,
+#summary{
+  border-color:rgba(212,175,55,.40) !important;
+}
+
+.statusPill:hover{
+  border-color:rgba(249,226,125,.70) !important;
+  box-shadow:0 0 18px rgba(212,175,55,.16) !important;
+}
+
+/* Iconos/controles auxiliares */
+.icon-btn{
+  border-color:rgba(212,175,55,.56) !important;
+  color:var(--alotar-gold-soft) !important;
+  background:rgba(212,175,55,.10) !important;
+}
+
+.icon-btn:hover{
+  border-color:var(--alotar-gold-soft) !important;
+  box-shadow:0 0 16px rgba(212,175,55,.22) !important;
+}
+
+/* Separadores con centro dorado */
+.hr{
+  background:linear-gradient(90deg, transparent, rgba(212,175,55,.52), transparent) !important;
+}
+
+/* Temas claros SaaS: conservar legibilidad, añadir firma dorada sin oscurecer */
+body:not(.industry-aero) .card,
+body:not(.industry-aero) .topbar{
+  border-color:rgba(180,140,35,.46) !important;
+  box-shadow:
+    0 12px 32px rgba(15,23,42,.08),
+    0 0 16px rgba(180,140,35,.10) !important;
+}
+
+body:not(.industry-aero) input,
+body:not(.industry-aero) select,
+body:not(.industry-aero) .otpBox{
+  border-color:rgba(180,140,35,.40) !important;
+}
+
+body:not(.industry-aero) button,
+body:not(.industry-aero) .slot{
+  border-color:rgba(180,140,35,.44) !important;
+}
+
+/* Responsive: conservar el premium sin sacrificar rendimiento visual */
+@media(max-width:640px){
+  .card,
+  .topbar{
+    border-color:rgba(212,175,55,.50) !important;
+    box-shadow:0 8px 22px rgba(0,0,0,.20), 0 0 12px rgba(212,175,55,.10) !important;
+  }
+
+  button:hover:not(:disabled),
+  .slot:hover{
+    transform:none !important;
+  }
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V2
+   Refuerzo de tarjetas grandes + limpieza visual del footer
+===================================================== */
+
+/* Tarjetas grandes del flujo: borde dorado mucho más visible */
+#cardBookingFlow,
+#cardOtp,
+#cardConfirm{
+  position:relative;
+  border:1px solid rgba(212,175,55,.68) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 22%),
+    linear-gradient(180deg, rgba(212,175,55,.08), transparent 58%),
+    linear-gradient(180deg, rgba(13,21,34,.98), rgba(10,16,32,.98)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(249,226,125,.12),
+    0 22px 56px rgba(0,0,0,.44),
+    0 0 24px rgba(212,175,55,.18) !important;
+}
+
+#cardBookingFlow::after,
+#cardOtp::after,
+#cardConfirm::after{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:calc(var(--radius) - 2px);
+  border:1px solid rgba(212,175,55,.18);
+  pointer-events:none;
+  box-shadow: inset 0 0 18px rgba(249,226,125,.04);
+}
+
+#cardBookingFlow:hover,
+#cardOtp:hover,
+#cardConfirm:hover{
+  border-color:rgba(249,226,125,.84) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(249,226,125,.16),
+    0 26px 64px rgba(0,0,0,.48),
+    0 0 30px rgba(212,175,55,.24) !important;
+}
+
+/* La tarjeta de confirmación queda completamente limpia y sólida */
+#cardConfirm{
+  overflow:hidden;
+}
+
+#cardConfirm #summary,
+#cardConfirm #msgReserve{
+  position:relative;
+  z-index:1;
+}
+
+/* El área inferior no debe mostrar una franja gris detrás de Confirmar reserva */
+.footerBrand{
+  background:transparent !important;
+  border-top:1px solid rgba(212,175,55,.16) !important;
+  box-shadow:none !important;
+}
+
+.footerBrand::before,
+.footerBrand::after,
+.footerInner::before,
+.footerInner::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* Si el flujo termina antes del footer, mantenemos continuidad visual */
+.container{
+  background:transparent !important;
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V3
+   Fondo aeronáutico uniforme: elimina halo gris/azulado
+===================================================== */
+body.industry-aero{
+  background:
+    radial-gradient(900px 520px at 82% -8%, rgba(212,175,55,.055), transparent 62%),
+    linear-gradient(180deg, #0b111b 0%, #070b12 52%, #05080d 100%) !important;
+  background-attachment:fixed !important;
+}
+
+/* Mantener continuidad visual detrás de Confirmar reserva y del footer */
+body.industry-aero .container,
+body.industry-aero .footerBrand{
+  background:transparent !important;
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V4
+   Boot card con borde dorado premium visible
+===================================================== */
+.bootInner.bootHero{
+  border:1px solid rgba(212,175,55,.76) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(249,226,125,.14),
+    0 30px 80px rgba(0,0,0,.72),
+    0 0 26px rgba(212,175,55,.22),
+    0 0 54px rgba(212,175,55,.10) !important;
+  position:relative;
+}
+
+.bootInner.bootHero::after{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:18px;
+  border:1px solid rgba(212,175,55,.20);
+  pointer-events:none;
+  box-shadow:inset 0 0 18px rgba(249,226,125,.035);
+}
+
+.bootInner.bootHero:hover{
+  border-color:rgba(249,226,125,.88) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(249,226,125,.18),
+    0 32px 84px rgba(0,0,0,.74),
+    0 0 34px rgba(212,175,55,.28),
+    0 0 64px rgba(212,175,55,.12) !important;
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V5
+   Tarjeta final premium después de reserva confirmada
+===================================================== */
+#cardReservationSuccess{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(212,175,55,.82) !important;
+  border-radius:24px !important;
+  padding:26px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 24%),
+    linear-gradient(180deg, rgba(212,175,55,.10), transparent 58%),
+    linear-gradient(180deg, rgba(10,16,32,.985), rgba(6,9,19,.985)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(249,226,125,.14),
+    0 26px 70px rgba(0,0,0,.50),
+    0 0 34px rgba(212,175,55,.24) !important;
+}
+
+#cardReservationSuccess::before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:16px;
+  border:1px solid rgba(249,226,125,.20);
+  pointer-events:none;
+  box-shadow:inset 0 0 22px rgba(212,175,55,.04);
+}
+
+.reservationSuccessHead{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.reservationSuccessLogo{
+  width:84px;
+  height:84px;
+  flex:0 0 84px;
+  object-fit:contain;
+  filter:
+    drop-shadow(0 0 12px rgba(212,175,55,.34))
+    drop-shadow(0 0 16px rgba(56,189,248,.12));
+}
+
+.reservationSuccessCheck{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
+  color:#86efac;
+  font-weight:900;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.reservationSuccessTitle{
+  margin:0;
+  color:#f8fafc;
+  font-size:24px;
+  line-height:1.15;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.reservationSuccessCompany{
+  margin-top:5px;
+  color:var(--gold-soft);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.reservationSuccessCode{
+  position:relative;
+  z-index:1;
+  margin:16px 0;
+  padding:13px 16px;
+  border-radius:14px;
+  border:1px solid rgba(212,175,55,.48);
+  background:rgba(212,175,55,.075);
+  color:#fff3b0;
+  font-weight:900;
+  letter-spacing:.05em;
+  word-break:break-word;
+}
+
+.reservationSuccessGrid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px 14px;
+}
+
+.reservationSuccessItem{
+  padding:11px 13px;
+  border-radius:14px;
+  border:1px solid rgba(212,175,55,.26);
+  background:rgba(255,255,255,.025);
+}
+
+.reservationSuccessLabel{
+  display:block;
+  margin-bottom:5px;
+  color:#8fa3bf;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.reservationSuccessValue{
+  color:#f8fafc;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.4;
+}
+
+.reservationSuccessNotice{
+  position:relative;
+  z-index:1;
+  margin-top:14px;
+  padding:11px 13px;
+  border-radius:14px;
+  border:1px solid rgba(134,239,172,.22);
+  background:rgba(34,197,94,.06);
+  color:#bbf7d0;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.reservationSuccessActions{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:18px;
+}
+
+.reservationSuccessPowered{
+  position:relative;
+  z-index:1;
+  margin-top:22px;
+  padding-top:16px;
+  border-top:1px solid rgba(212,175,55,.20);
+  text-align:center;
+  color:#f9e27d;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+
+.reservationSuccessPowered small{
+  display:block;
+  margin-top:4px;
+  color:#94a3b8;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+
+@media(max-width:640px){
+  #cardReservationSuccess{ padding:20px 16px !important; }
+  .reservationSuccessHead{ align-items:flex-start; gap:12px; }
+  .reservationSuccessLogo{ width:64px; height:64px; flex-basis:64px; }
+  .reservationSuccessTitle{ font-size:18px; }
+  .reservationSuccessGrid{ grid-template-columns:1fr; }
+  .reservationSuccessActions{ grid-template-columns:1fr; }
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V8
+   Topbar + OTP transparentes con borde dorado
+===================================================== */
+
+/* Tarjeta superior / cabecera */
+.topbar{
+  background:transparent !important;
+  border:1px solid rgba(249,226,125,.72) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.10),
+    0 0 22px rgba(212,175,55,.22),
+    0 0 44px rgba(212,175,55,.10) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.topbar:hover{
+  border-color:rgba(255,239,155,.92) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.14),
+    0 0 28px rgba(212,175,55,.30),
+    0 0 52px rgba(212,175,55,.14) !important;
+}
+
+/* Tarjeta de verificación OTP */
+#cardOtp{
+  background:transparent !important;
+  border:1px solid rgba(249,226,125,.72) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.10),
+    0 0 22px rgba(212,175,55,.22),
+    0 0 44px rgba(212,175,55,.10) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+#cardOtp:hover{
+  border-color:rgba(255,239,155,.92) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.14),
+    0 0 28px rgba(212,175,55,.30),
+    0 0 52px rgba(212,175,55,.14) !important;
+}
+
+/* El brillo interior se conserva, pero sin rellenar el fondo */
+#cardOtp::before,
+.topbar::before{
+  background:transparent !important;
+  opacity:0 !important;
+}
+
+/* En móvil también mantener transparencias */
+@media(max-width:1024px){
+  .topbar,
+  #cardOtp{
+    background:transparent !important;
+    border-color:rgba(249,226,125,.72) !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,248,210,.08),
+      0 0 18px rgba(212,175,55,.20) !important;
+  }
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V9
+   FIX REAL: topbar transparente vence regla industry-aero
+===================================================== */
+body.industry-aero .topbar,
+body:not(.industry-aero) .topbar{
+  background:none !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border:1px solid rgba(249,226,125,.76) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.10),
+    0 0 22px rgba(212,175,55,.24),
+    0 0 44px rgba(212,175,55,.11) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+body.industry-aero .topbar:hover,
+body:not(.industry-aero) .topbar:hover{
+  background:none !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  border-color:rgba(255,239,155,.94) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,248,210,.14),
+    0 0 28px rgba(212,175,55,.32),
+    0 0 54px rgba(212,175,55,.15) !important;
+}
+
+@media(max-width:1024px){
+  body.industry-aero .topbar,
+  body:not(.industry-aero) .topbar{
+    background:none !important;
+    background-color:transparent !important;
+    background-image:none !important;
+  }
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V10
+   Boot card: borde dorado reforzado y definido
+===================================================== */
+.bootScreen .bootInner.bootHero{
+  border:2px solid rgba(249,226,125,.92) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(212,175,55,.30),
+    0 30px 80px rgba(0,0,0,.72),
+    0 0 18px rgba(249,226,125,.26),
+    0 0 42px rgba(212,175,55,.18) !important;
+}
+
+.bootScreen .bootInner.bootHero::after{
+  border:1px solid rgba(212,175,55,.34) !important;
+}
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V11
+   Boot screen: UNA sola tarjeta premium con doble borde dorado
+   Inspirado en la referencia visual aprobada.
+   Capa visual únicamente; no altera reservas, OTP ni lógica JS.
+===================================================== */
+.bootScreen .bootInner.bootHero{
+  width:min(720px, calc(100vw - 36px)) !important;
+  padding:34px 38px 30px !important;
+  border:2px solid rgba(249,226,125,.96) !important;
+  border-radius:24px !important;
+  background:
+    linear-gradient(180deg, rgba(11,17,29,.965), rgba(5,9,16,.975)) !important;
+  box-shadow:
+    0 28px 72px rgba(0,0,0,.58),
+    0 0 16px rgba(249,226,125,.26),
+    0 0 34px rgba(212,175,55,.18),
+    inset 0 0 0 1px rgba(255,248,210,.08) !important;
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+/* Segundo filo dorado dentro de la MISMA tarjeta */
+.bootScreen .bootInner.bootHero::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:9px !important;
+  border:1px solid rgba(249,226,125,.72) !important;
+  border-radius:17px !important;
+  pointer-events:none !important;
+  box-shadow:
+    inset 0 0 14px rgba(212,175,55,.05),
+    0 0 10px rgba(212,175,55,.08) !important;
+}
+
+/* Evita cualquier efecto visual que parezca una segunda tarjeta exterior */
+.bootScreen .bootInner.bootHero::before{
+  content:none !important;
+  display:none !important;
+}
+
+.bootScreen .bootCompanyRow,
+.bootScreen .bootCompanyMeta{
+  position:relative;
+  z-index:2;
+}
+
+.bootScreen .bootMsg{
+  position:relative;
+  z-index:2;
+  margin-top:20px !important;
+  padding-top:16px !important;
+  border-top:1px solid rgba(212,175,55,.58) !important;
+}
+
+@media(max-width:640px){
+  .bootScreen .bootInner.bootHero{
+    width:calc(100vw - 24px) !important;
+    padding:24px 20px 22px !important;
+    border-radius:22px !important;
+  }
+  .bootScreen .bootInner.bootHero::after{
+    inset:7px !important;
+    border-radius:16px !important;
+  }
+}
+
+
+
+/* =====================================================
+   ALOTAR PREMIUM GOLD UI · INDEX V12
+   Boot screen: borde dorado visible para la TARJETA EXTERNA
+   Capa visual únicamente; no altera reservas, OTP ni lógica JS.
+===================================================== */
+.bootScreen .bootInner.bootHero{
+  overflow:visible !important;
+  isolation:isolate !important;
+}
+
+/* Marco externo independiente, claramente visible alrededor de la tarjeta */
+.bootScreen .bootInner.bootHero::before{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  inset:-14px !important;
+  border:2px solid rgba(249,226,125,.96) !important;
+  border-radius:31px !important;
+  pointer-events:none !important;
+  z-index:-1 !important;
+  background:rgba(4,7,13,.42) !important;
+  box-shadow:
+    0 0 0 1px rgba(212,175,55,.24),
+    0 0 18px rgba(249,226,125,.34),
+    0 0 42px rgba(212,175,55,.24) !important;
+}
+
+/* Mantiene el segundo filo interior de la tarjeta principal */
+.bootScreen .bootInner.bootHero::after{
+  z-index:3 !important;
+}
+
+.bootScreen .bootCompanyRow,
+.bootScreen .bootCompanyMeta,
+.bootScreen .bootMsg{
+  position:relative !important;
+  z-index:4 !important;
+}
+
+@media(max-width:640px){
+  .bootScreen .bootInner.bootHero::before{
+    inset:-9px !important;
+    border-radius:28px !important;
+  }
+}
+
+</style>
+</head>
+
+<body>
+ 
+
+<div id="bootScreen" class="bootScreen">
+  <div class="bootInner bootHero">
+    <div class="bootCompanyRow">
+      <div class="bootLogoWrap">
+        <img
+          id="bootLogoImg"
+          src="https://drive.google.com/thumbnail?id=1478JxQx3tcT7NhXxdMrpeCDmr-oHRdtz"
+          alt="ALOTAR Logo"
+        />
+      </div>
+
+      <div class="bootCompanyMeta">
+         <div class="bootBrand" id="bootCompanyName">
+            <span class="bootPowered">Powered by</span>
+            <span class="bootAlotar">ALOTAR</span>
+         </div>
+         <div class="bootSub" id="bootCompanyType">Booking System Technology</div>
+         <div class="bootContact">
+            📞 <a href="https://wa.me/573102627513" target="_blank">+57 310 262 75 13</a>
+         </div>
+      </div>
+    </div>
+
+    <div class="bootMsg" id="bootMsg">Conectando con servidor...</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="topbar">
+    <div class="brand">
+  <div class="logo" id="brandLogoWrap">
+    <img id="brandLogoImg" class="brandLogoImg" style="display:none;" />
+    <span id="brandLogoFallback">✈️</span>
+  </div>
+  <div>
+    <div class="brandTitle" id="brandTitle">Reservas de Instrucción</div>
+    <div class="brandSub" id="brandSub">⛅ Disponibilidad • 🧑‍✈️ Instructor • 🧰 Recurso</div>
+  </div>
+</div>
+    <div class="statusPill" id="pill">🟡 CARGANDO</div>
+  </div>
+
+  <!-- Selección + disponibilidad -->
+  <div class="card silver hidden" id="cardBookingFlow">
+    <div class="row">
+    <div>
+      <label>🎓 Programa</label>
+      <select id="program"></select>
+     </div>
+    </div>
+
+
+    <div class="row">
+      <div>
+        <label>🧭 Servicio</label>
+        <select id="service"></select>
+      </div>
+      <div>
+        <label>🧰 Recurso</label>
+        <select id="resource"></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>🧑‍✈️ Instructor</label>
+        <select id="instructor"></select>
+      </div>
+
+      <div>
+        <label>📅 Fecha</label>
+        <div class="date-wrap">
+          <input id="date" type="date" />                  
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>⏱️ Duración</label>
+        <div id="duration" class="muted">—</div>
+      </div>
+      <div>
+        <button class="primary" id="btnAvailability" type="button">Consultar Disponibilidad</button>
+      </div>
+    </div>
+
+    <div id="msg" class="muted" style="margin-top:10px;"></div>
+    <div id="slots" class="slots"></div>
+    <div id="slotAvailability" style="margin-top:10px;color:#22c55e;font-weight:900;">
+  </div>
+  </div>
+
+  
+
+  <!-- ✅ NIVEL 3 (OTP) — aparece apenas elige horario -->
+  <div class="card gold" id="cardOtp">
+    <h3 style="color:var(--amber); letter-spacing:.12em; margin:0;">VERIFICACIÓN (OTP)</h3>
+    <div class="small" style="margin-top:8px;">
+      Primero verifica tu email para ingresar al sistema de reservas. Después podrás consultar disponibilidad y reservar.
+    </div>
+
+    <div class="hr"></div>
+
+    <div id="otpSummary" class="muted"></div>
+
+    <label>👤 Nombre</label>
+    <input id="studentName" autocomplete="name" />
+
+    <label>📧 Email</label>
+    <input id="studentEmail" autocomplete="email" disabled />
+
+    <div class="row" style="margin-top:12px;">
+      <div><button class="warn" id="btnSendOtp" type="button">Enviar código</button></div>
+      <div><button class="secondary" id="btnResetOtp" type="button">Cambiar datos</button></div>
+    </div>
+
+    <div id="otpVerifyBlock" class="hidden">
+       <label>🔐 Código OTP (6 dígitos)</label>
+
+       <div class="otpBoxes hidden" id="otpBoxes">
+         <input class="otpBox" id="otp1" inputmode="numeric" maxlength="1" disabled />
+         <input class="otpBox" id="otp2" inputmode="numeric" maxlength="1" disabled />
+         <input class="otpBox" id="otp3" inputmode="numeric" maxlength="1" disabled />
+         <input class="otpBox" id="otp4" inputmode="numeric" maxlength="1" disabled />
+         <input class="otpBox" id="otp5" inputmode="numeric" maxlength="1" disabled />
+         <input class="otpBox" id="otp6" inputmode="numeric" maxlength="1" disabled />
+       </div>
+
+    <div class="row" style="margin-top:12px;">
+      <div><button class="primary" id="btnVerifyOtp" type="button" disabled>Verificar</button></div>
+      <div><button class="secondary" id="btnBackFromOtp" type="button" disabled>Volver</button></div>
+    </div>
+   </div> 
+
+    <div id="msgOtp" class="muted" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Confirmar reserva (solo si OTP OK) -->
+  <div class="card gold hidden" id="cardConfirm">
+    <h3 style="color:var(--green); letter-spacing:.12em; margin:0;">CONFIRMAR RESERVA</h3>
+
+    <div class="small" style="margin-top:8px;">
+      Email verificado ✅. Ahora sí puedes confirmar y bloquear el turno.
+    </div>
+
+    <div class="hr"></div>
+
+    <div id="summary" class="muted"></div>
+
+    <div class="row" style="margin-top:12px;">
+      <div><button class="secondary" id="btnBack" type="button">Volver</button></div>
+      <div><button class="primary" id="btnReserve" type="button">Confirmar</button></div>
+    </div>
+
+    <div id="msgReserve" class="muted" style="margin-top:10px;"></div>
+  </div>
+
+
+  <!-- ✅ TARJETA FINAL PREMIUM · aparece solo cuando la reserva ya fue creada -->
+  <div class="card gold hidden" id="cardReservationSuccess" aria-live="polite">
+    <div class="reservationSuccessHead">
+      <img id="reservationSuccessLogo" class="reservationSuccessLogo" alt="Logo empresa" style="display:none;" />
+      <div>
+        <div class="reservationSuccessCheck">✅ Reserva confirmada</div>
+        <h3 class="reservationSuccessTitle">Tu reserva quedó registrada</h3>
+        <div class="reservationSuccessCompany" id="reservationSuccessCompany">ALOTAR Booking</div>
+      </div>
+    </div>
+
+    <div class="reservationSuccessCode" id="reservationSuccessCode">Código: —</div>
+
+    <div class="reservationSuccessGrid">
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Programa</span>
+        <div class="reservationSuccessValue" id="reservationSuccessProgram">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Servicio</span>
+        <div class="reservationSuccessValue" id="reservationSuccessService">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Recurso</span>
+        <div class="reservationSuccessValue" id="reservationSuccessResource">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Instructor</span>
+        <div class="reservationSuccessValue" id="reservationSuccessInstructor">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Fecha</span>
+        <div class="reservationSuccessValue" id="reservationSuccessDate">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Horario</span>
+        <div class="reservationSuccessValue" id="reservationSuccessTime">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Alumno</span>
+        <div class="reservationSuccessValue" id="reservationSuccessStudent">—</div>
+      </div>
+      <div class="reservationSuccessItem">
+        <span class="reservationSuccessLabel">Email</span>
+        <div class="reservationSuccessValue" id="reservationSuccessEmail">—</div>
+      </div>
+    </div>
+
+    <div class="reservationSuccessNotice" id="reservationSuccessNotice">Reserva creada correctamente.</div>
+
+    <div class="reservationSuccessActions">
+      <button class="secondary" id="btnReservationSuccessFinish" type="button">Finalizar</button>
+      <button class="primary" id="btnReservationSuccessNew" type="button">Nueva reserva</button>
+    </div>
+
+    <div class="reservationSuccessPowered">
+      Powered by ALOTAR
+      <small>Booking System Technology</small>
+    </div>
+  </div>
+
+<footer class="footerBrand">
+  <div class="footerInner">
+    <img
+      src="https://drive.google.com/thumbnail?id=1478JxQx3tcT7NhXxdMrpeCDmr-oHRdtz"
+      alt="ALOTAR Logo"
+      class="footerLogoAlotar"
+    />
+    <div class="footerTitle">Powered by ALOTAR</div>
+    <div class="footerSub">Booking System Technology</div>
+    <div class="footerCopy">© 2026 · All rights reserved</div>
+  </div>
+</footer>
+</div>
+
+<script src="./config.js"></script>
+
+<script>
+/**
+ * ✅ Configuración externa para PWA / App estática
+ * - No cambias URL en cada deploy.
+ */
+const APP_CONFIG = window.ALOTAR_CONFIG || {};
+
+const WEBAPP_URL = String(APP_CONFIG.WEBAPP_URL || "").trim();
+const API_KEY = String(APP_CONFIG.API_KEY || "").trim();
+const COMPANY_NAME = String(APP_CONFIG.COMPANY_NAME || "ALOTAR Booking").trim();
+
+function readPrefillFromUrl_(){
+  const params = new URLSearchParams(window.location.search || "");
+  const jsonRaw = params.get("prefill");
+
+  if (jsonRaw) {
+    try {
+      const parsed = JSON.parse(jsonRaw);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch (e) {
+      console.warn("Prefill JSON inválido:", e);
+    }
+  }
+
+  const keys = [
+    "source","booking_origin","academy_session","session_token",
+    "student_name","student_email","student_id","student_uid",
+    "program_id","program_name","service_id","resource_id","instructor_id",
+    "company_id"
+  ];
+
+  const out = {};
+  keys.forEach(k => {
+    const v = params.get(k);
+    if (v !== null && String(v).trim() !== "") out[k] = v;
+  });
+  return out;
+}
+
+const URL_PREFILL = readPrefillFromUrl_();
+
+const REBOOK_PREFILL_RAW =
+  Object.keys(URL_PREFILL).length
+    ? URL_PREFILL
+    : (APP_CONFIG.REBOOK_PREFILL || {});
+
+function normalizeCompanyId_(value){
+  return String(value || "").trim();
+}
+
+function resolveCompanyId_(){
+  const params = new URLSearchParams(window.location.search || "");
+
+  // 1) La URL explícita siempre manda.
+  const fromUrl = normalizeCompanyId_(params.get("company_id"));
+  if (fromUrl) {
+    try { localStorage.setItem("alotar:last_company_id", fromUrl); } catch (_) {}
+    return fromUrl;
+  }
+
+  // 2) Contexto recibido por Academy / reagendamiento.
+  const fromPrefill = normalizeCompanyId_(
+    URL_PREFILL?.company_id ||
+    REBOOK_PREFILL_RAW?.company_id
+  );
+  if (fromPrefill) {
+    try { localStorage.setItem("alotar:last_company_id", fromPrefill); } catch (_) {}
+    return fromPrefill;
+  }
+
+  // 3) Al abrir la PWA desde el icono, recupera la última empresa utilizada.
+  try {
+    const remembered = normalizeCompanyId_(localStorage.getItem("alotar:last_company_id"));
+    if (remembered) return remembered;
+  } catch (_) {}
+
+  // 4) Solo para desarrollo/controlado. En producción puede quedar vacío.
+  return normalizeCompanyId_(
+    APP_CONFIG.DEFAULT_COMPANY_ID ||
+    APP_CONFIG.COMPANY_ID ||
+    ""
+  );
+}
+
+const COMPANY_ID = resolveCompanyId_();
+
+const REBOOK_PREFILL =
+  (typeof REBOOK_PREFILL_RAW === "string")
+    ? JSON.parse(REBOOK_PREFILL_RAW || "{}")
+    : (REBOOK_PREFILL_RAW || {});
+
+const ACADEMY_PREFILL = (String(
+  REBOOK_PREFILL.source ||
+  REBOOK_PREFILL.booking_origin ||
+  ""
+).trim().toUpperCase() === "ACADEMY") && !!String(
+  REBOOK_PREFILL.academy_session ||
+  REBOOK_PREFILL.session_token ||
+  ""
+).trim();
+
+
+console.log("WEBAPP_URL:", WEBAPP_URL);
+console.log("COMPANY_ID INYECTADO:", COMPANY_ID);
+
+let catalog = null;
+let selectedSlot = null;
+
+// ✅ OTP state
+let otpVerified = false;
+let verifiedName = "";
+let verifiedEmail = "";
+let OTP_SESSION_TOKEN = ""; // ✅ token post-OTP (obligatorio para reservar)
+
+let otpSent = false;
+let otpLockedName = "";
+let otpLockedEmail = "";
+
+const el = id => document.getElementById(id);
+
+
+function getOtpBoxes(){
+  return [1,2,3,4,5,6]
+    .map(n => el("otp" + n))
+    .filter(Boolean);
+}
+
+function toggleOtpBoxes(show){
+  const wrap = el("otpBoxes");
+  if (!wrap) return;
+
+  if (show) wrap.classList.remove("hidden");
+  else wrap.classList.add("hidden");
+}
+
+function toggleOtpVerifyBlock(show){
+  const block = el("otpVerifyBlock");
+  if (!block) return;
+
+  if (show) block.classList.remove("hidden");
+  else block.classList.add("hidden");
+}
+
+function getOtpCodeFromBoxes(){
+  return getOtpBoxes()
+    .map(x => String(x.value || "").trim())
+    .join("");
+}
+
+function clearOtpBoxes(){
+  getOtpBoxes().forEach(x => {
+    x.value = "";
+  });
+}
+
+function setOtpBoxesEnabled(enabled){
+  getOtpBoxes().forEach(x => {
+    x.disabled = !enabled;
+  });
+}
+
+function focusFirstOtpBox(){
+  const first = getOtpBoxes()[0];
+  if (first && !first.disabled) {
+    first.focus();
+  }
+}
+
+function finishBootScreen_(){
+  const boot = el("bootScreen");
+  const container = document.querySelector(".container");
+
+  if (container) container.classList.add("ready");
+  if (boot) boot.classList.add("hidden");
+}
+
+function buildDriveImageCandidates_(url){
+  const s = String(url || "").trim();
+  if (!s) return [];
+
+  const out = [s];
+
+  let m = s.match(/\/file\/d\/([^/]+)/);
+  if (m && m[1]) {
+    const id = m[1];
+    out.push("https://drive.google.com/uc?export=view&id=" + id);
+    out.push("https://drive.google.com/uc?export=download&id=" + id);
+    out.push("https://lh3.googleusercontent.com/d/" + id);
+  }
+
+  m = s.match(/[?&]id=([^&]+)/);
+  if (m && m[1]) {
+    const id = m[1];
+    out.push("https://drive.google.com/uc?export=view&id=" + id);
+    out.push("https://drive.google.com/uc?export=download&id=" + id);
+    out.push("https://lh3.googleusercontent.com/d/" + id);
+  }
+
+  return [...new Set(out)];
+}
+
+function tryLoadImage_(img, urls, onSuccess, onFail){
+  let i = 0;
+
+  function next(){
+    if (i >= urls.length){
+      if (onFail) onFail();
+      return;
+    }
+
+    const url = urls[i++];
+
+    img.onload = function(){
+      if (onSuccess) onSuccess(url);
+    };
+
+    img.onerror = function(){
+      next();
+    };
+
+    img.src = url;
+  }
+
+  next();
+}
+
+function updateBrandingFromCatalog_(){
+  const titleEl = el("brandTitle");
+  const subEl = el("brandSub");
+  const img = el("brandLogoImg");
+  const fallback = el("brandLogoFallback");
+
+  const bootImg = el("bootLogoImg");
+  const bootFallback = el("bootLogoFallback");
+  const bootName = el("bootCompanyName");
+  const bootType = el("bootCompanyType");
+
+  if (!catalog) return;
+
+  const companyName =
+    catalog.company?.name ||
+    catalog.company?.org_name ||
+    "Reservas de Instrucción";
+
+  const businessType =
+    catalog.company?.business_type ||
+    catalog.company?.type ||
+    "";
+
+  if (bootName) {
+  bootName.innerHTML = `
+    <span class="bootPowered">Powered by</span>
+    <span class="bootAlotar">ALOTAR</span>
+  `;
+}
+  if (bootType) bootType.textContent = "Booking System Technology";
+
+  if (titleEl) titleEl.textContent = companyName;
+  if (subEl) {
+    subEl.textContent = businessType
+      ? `Tipo de negocio: ${businessType}`
+      : "⛅ Disponibilidad • 🧑‍✈️ Instructor • 🧰 Recurso";
+  }
+
+  const rawLogoUrl =
+    catalog.branding?.company_logo_url ||
+    catalog.company?.company_logo_url ||
+    catalog.company?.logo_url ||
+    "";
+
+  const candidates = buildDriveImageCandidates_(rawLogoUrl);
+
+  // Header principal
+  if (!img || !fallback || !candidates.length){
+    if (img) img.style.display = "none";
+    if (fallback) fallback.style.display = "inline";
+  } else {
+    tryLoadImage_(
+      img,
+      candidates,
+      function(){
+        img.style.display = "block";
+        fallback.style.display = "none";
+      },
+      function(){
+        img.style.display = "none";
+        fallback.style.display = "inline";
+      }
+    );
+  }  
+}
+
+
+
+
+function updateSystemStatus(){
+  const pill = el("pill");
+
+  if (!otpVerified) {
+    pill.textContent = "🔐 VERIFICACIÓN REQUERIDA";
+    pill.style.color = "#fbbf24";
+    return;
+  }
+
+  if (otpVerified && !selectedSlot) {
+    pill.textContent = "📡 Consultar Disponibilidad";
+    pill.style.color = "#38bdf8";
+    return;
+  }
+
+  if (otpVerified && selectedSlot) {
+    pill.textContent = "🟢 LISTO PARA RESERVAR";
+    pill.style.color = "#22c55e";
+    return;
+  }
+}
+function setMsg(t,k="muted"){ el("msg").className = k; el("msg").textContent = t; }
+function setOtpMsg(t,k="muted"){ el("msgOtp").className = k; el("msgOtp").textContent = t; }
+function setReserveMsg(t,k="muted"){ el("msgReserve").className = k; el("msgReserve").textContent = t; }
+function slotLabel(s){ return s.label || (s.start_iso ? s.start_iso.split("T")[1].slice(0,5) : ""); }
+function buildSlotProgress_(s){
+  const label = slotLabel(s);
+
+  // Si no hay cupos del backend, solo hora
+  if (!s || !s.is_virtual || typeof s.spots_left !== "number" || typeof s.capacity !== "number") {
+    return `<div class="t">${label}</div>`;
+  }
+
+  const cap = Math.max(1, Number(s.capacity));
+  const left = Math.max(0, Math.min(cap, Number(s.spots_left)));
+  const used = cap - left;
+
+  // Porcentaje "ocupado" (verde lleno = ocupado)
+  const p = Math.round((used / cap) * 100);
+
+  return `
+    <div class="t">${label}</div>
+    <div class="pbar" style="--p:${p}%"></div>
+    <div class="cap">${left} CUPOS LIBRES</div>
+  `;
+}
+function buildSlotGlass_(s){
+  const label = slotLabel(s);
+
+  // Si NO viene info de cupos, render normal
+  if (!s || !s.is_virtual || typeof s.spots_left !== "number" || typeof s.capacity !== "number") {
+    return `<div class="t">${label}</div>`;
+  }
+
+  const capacity = Math.max(1, Number(s.capacity));
+  const left = Math.max(0, Math.min(capacity, Number(s.spots_left)));
+  const used = Math.max(0, capacity - left);
+
+  // Barras visuales fijas (20 segmentos)
+  const segN = 20;
+  const usedSeg = Math.round((used / capacity) * segN);
+
+  // Clases por “alerta operacional”
+  let barClass = "";
+  if (left <= 5) barClass = "warn";
+  if (left <= 2) barClass = "crit";
+
+  // Construye segmentos
+  let segs = "";
+  for (let i=0;i<segN;i++){
+    segs += `<span class="seg ${i < usedSeg ? "on" : ""}"></span>`;
+  }
+
+  // ✅ Si NO quieres texto de cupos, deja comentada la línea cap:
+  const cap = `<div class="cap">${left} cupos libres</div>`;
+  // const cap = ""; // <- si prefieres solo barra, activa esta y comenta la de arriba
+
+  return `
+    <div class="t">${label}</div>
+    <div class="bar ${barClass}">
+      <div class="segwrap">${segs}</div>
+    </div>
+    ${cap}
+  `;
+}
+function slotLabelWithCapacity(s){
+  const base = slotLabel(s); // "21:00"
+  if (s && s.is_virtual && typeof s.spots_left === "number" && typeof s.capacity === "number") {
+    return `${base} (${s.spots_left}/${s.capacity})`;
+  }
+  return base;
+}
+
+function updateSlotAvailability(slot){
+  const box = el("slotAvailability");
+  if (!box) return;
+
+  if (!slot){
+    box.textContent = "—";
+    box.style.color = "#8fa3bf";
+    return;
+  }
+
+  // Si el backend ya manda cupos:
+  const isVirtual = !!slot.is_virtual;
+  const cap = Number(slot.capacity || 0);
+  const left = (slot.spots_left == null) ? null : Number(slot.spots_left);
+
+  // Caso ideal: virtual con cupos
+  if (isVirtual && cap > 0 && left != null){
+    if (left > 0){
+      box.textContent = `✅ Disponible: ${left}/${cap}`;
+      box.style.color = "#22c55e";
+    } else {
+      box.textContent = `⛔ Cupo lleno: 0/${cap}`;
+      box.style.color = "#fb7185";
+    }
+    return;
+  }
+
+  // Si aún no vienen cupos (fallback)
+  if (isVirtual){
+    box.textContent = "✅ Disponible (salón virtual)";
+    box.style.color = "#22c55e";
+    return;
+  }
+
+  // Recursos físicos: si aparece como slot, está disponible
+  box.textContent = "✅ Disponible";
+  box.style.color = "#22c55e";
+}
+
+
+function normalizeEmail(s){ return String(s||"").trim().toLowerCase(); }
+function normalizeName(s){ return String(s||"").trim().replace(/\s+/g," "); }
+
+function getBusinessType(){
+  return String(
+    catalog?.company?.business_type ||
+    catalog?.company?.type ||
+    ""
+  ).toLowerCase();
+}
+
+
+function applyBookingIndustryTheme_(){
+
+  const type = String(
+    catalog?.company?.business_type ||
+    catalog?.company?.type ||
+    "OTRO"
+  ).trim().toUpperCase();
+
+  const map = {
+    AERONAUTICO:"industry-aero",
+    AERO:"industry-aero",
+    SPA:"industry-spa",
+    BELLEZA:"industry-belleza",
+    SALUD:"industry-salud",
+    EDUCACION:"industry-educacion",
+    "EDUCACIÓN":"industry-educacion",
+    OTRO:"industry-otro"
+  };
+
+  document.body.classList.remove(
+    "industry-aero",
+    "industry-spa",
+    "industry-belleza",
+    "industry-salud",
+    "industry-educacion",
+    "industry-otro"
+  );
+
+  document.body.classList.add(map[type] || "industry-otro");
+}
+
+function getBusinessMessage(){
+  const type = String(
+    catalog?.company?.business_type ||
+    catalog?.company?.type ||
+    ""
+  ).toLowerCase();
+
+  if (type.includes("aero")) {
+    return "🧭 Rumbo a la Aerolínea Capitán ✈️";
+  }
+
+  if (type.includes("spa") || type.includes("belleza")) {
+    return "💆 Tu bienestar comienza aquí";
+  }
+
+  if (type.includes("salud") || type.includes("medic")) {
+    return "🩺 Cuidando tu salud y bienestar";
+  }
+
+  if (type.includes("fitness") || type.includes("gym")) {
+    return "🏋️ Construyendo tu mejor versión";
+  }
+
+  if (type.includes("educ")) {
+    return "📘 Formación que transforma tu futuro";
+  }
+
+  // fallback universal
+  return "🚀 Sistema de reservas activo";
+}
+
+function isValidEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||"").trim()); }
+
+function isValidName(s){
+  const v = normalizeName(s);
+  const parts = v.split(" ").filter(p => p.length > 0);
+
+  if (parts.length < 2) return false;
+
+  return parts.every(p => p.length >= 2);
+}
+
+function updateNameEmailFlow(){
+  const name = normalizeName(el("studentName").value);
+  const nameOk = isValidName(name);
+
+  if (!nameOk){
+    el("studentEmail").value = "";
+    el("studentEmail").disabled = true;
+
+    if (name.length > 0){
+      setOtpMsg("⛔ Debes escribir nombre y al menos un apellido.", "err");
+    }
+
+    return false;
+  }
+
+  el("studentEmail").disabled = false;
+
+  if (!otpSent){
+    setOtpMsg("", "muted");
+  }
+
+  return true;
+}
+
+function isOtpCodeValid(s){
+  const code = String(s || "").replace(/\D/g, "").slice(0,6);
+  return code.length === 6;
+}
+
+function setOtpInputsEnabled(enabled){
+  setOtpBoxesEnabled(enabled);
+  el("btnVerifyOtp").disabled = !enabled;
+}
+
+
+function invalidateOtpFlow(message = ""){
+  otpSent = false;
+  otpVerified = false;
+  OTP_SESSION_TOKEN = "";
+  otpLockedName = "";
+  otpLockedEmail = "";
+
+  clearOtpBoxes();
+  setOtpBoxesEnabled(false);
+  toggleOtpBoxes(false);
+  toggleOtpVerifyBlock(false);
+  el("btnVerifyOtp").disabled = true;
+
+  if (message) setOtpMsg(message, "muted");
+}
+
+function updateOtpUiState(){
+  const name = normalizeName(el("studentName").value);
+  const email = normalizeEmail(el("studentEmail").value);
+  const code = getOtpCodeFromBoxes();
+
+  const nameOk = isValidName(name);
+  const emailOk = isValidEmail(email);
+
+  el("studentEmail").disabled = !nameOk;
+
+  el("btnSendOtp").disabled = !(nameOk && emailOk) || otpSent;
+
+  if (!otpSent){
+    setOtpBoxesEnabled(false);
+    el("btnVerifyOtp").disabled = true;
+    return;
+  }
+
+  const sameIdentity =
+    name === otpLockedName &&
+    email === otpLockedEmail;
+
+  setOtpBoxesEnabled(sameIdentity);
+  el("btnVerifyOtp").disabled = !(sameIdentity && code.length === 6);
+}
+
+function lockStudentInputs(lock){
+  el("studentName").readOnly = !!lock;
+  el("studentEmail").readOnly = !!lock;
+  el("btnSendOtp").disabled = !!lock;
+  el("btnResetOtp").disabled = !lock ? true : false; // solo habilitar reset cuando está bloqueado
+}
+
+function resetOtpState(){
+  otpSent = false;
+  otpVerified = false;
+  verifiedName = "";
+  verifiedEmail = "";
+  OTP_SESSION_TOKEN = "";
+  otpLockedName = "";
+  otpLockedEmail = "";
+
+  clearOtpBoxes();
+  setOtpBoxesEnabled(false);
+  toggleOtpBoxes(false);
+  toggleOtpVerifyBlock(false);
+
+  setOtpMsg("");
+  setReserveMsg("");
+
+  lockStudentInputs(false);
+  el("studentEmail").disabled = true;
+  el("btnResetOtp").disabled = true;
+  el("btnVerifyOtp").disabled = true;
+
+  el("cardConfirm").classList.add("hidden");
+  el("cardBookingFlow").classList.add("hidden");
+
+  updateOtpUiState();
+}
+
+function applyRebookPrefillIfAny(){
+  console.log("REBOOK_PREFILL:", REBOOK_PREFILL);
+  console.log("student_name:", REBOOK_PREFILL?.student_name);
+  console.log("student_email:", REBOOK_PREFILL?.student_email);
+
+  if (!REBOOK_PREFILL || !REBOOK_PREFILL.student_email) return;
+
+  const name = normalizeName(REBOOK_PREFILL.student_name || "");
+  const email = normalizeEmail(REBOOK_PREFILL.student_email || "");
+
+  if (!name || !email) return;
+
+  otpVerified = true;
+  otpSent = true;
+  verifiedName = name;
+  verifiedEmail = email;
+
+  otpLockedName = name;
+  otpLockedEmail = email;
+
+  OTP_SESSION_TOKEN = ACADEMY_PREFILL
+    ? "ACADEMY_TRUSTED"
+    : "REBOOK_TRUSTED";
+
+  if (el("studentName")) el("studentName").value = name;
+  if (el("studentEmail")) el("studentEmail").value = email;
+
+  lockStudentInputs(true);
+
+  if (el("cardOtp")) el("cardOtp").classList.add("hidden");
+  if (el("cardBookingFlow")) el("cardBookingFlow").classList.remove("hidden");
+  if (el("cardConfirm")) el("cardConfirm").classList.add("hidden");
+
+  if (typeof toggleOtpVerifyBlock === "function") toggleOtpVerifyBlock(false);
+  if (typeof toggleOtpBoxes === "function") toggleOtpBoxes(false);
+
+  clearOtpBoxes();
+
+  if (REBOOK_PREFILL.program_id && el("program")) {
+    el("program").value = REBOOK_PREFILL.program_id;
+    refreshAllByProgram();
+  }
+
+  if (REBOOK_PREFILL.service_id && el("service")) {
+    el("service").value = REBOOK_PREFILL.service_id;
+    refreshResource();
+    refreshDuration();
+  }
+
+  if (REBOOK_PREFILL.instructor_id && el("instructor")) {
+    el("instructor").value = REBOOK_PREFILL.instructor_id;
+  }
+
+  if (REBOOK_PREFILL.resource_id && el("resource")) {
+    el("resource").value = REBOOK_PREFILL.resource_id;
+  }
+
+  setMsg(
+    ACADEMY_PREFILL
+      ? "✅ Acceso desde Academy detectado. Selecciona servicio, recurso, instructor, fecha y horario."
+      : "✅ Reagendamiento iniciado. Selecciona una nueva fecha y horario.",
+    "ok"
+  );
+  updateOtpUiState();
+  updateSystemStatus();
+}
+
+function setupOtpBoxes(){
+  const boxes = getOtpBoxes();
+
+  if (boxes.length !== 6){
+    console.error("❌ OTP boxes incompletos:", boxes);
+    return;
+  }
+
+  boxes.forEach((box, index) => {
+
+    box.addEventListener("input", (e)=>{
+      let v = String(e.target.value || "").replace(/\D/g,"");
+      e.target.value = v.slice(0,1);
+
+      if (e.target.value && index < boxes.length - 1){
+        boxes[index + 1].focus();
+      }
+
+      updateOtpUiState();
+    });
+
+    box.addEventListener("keydown", (e)=>{
+      if (e.key === "Backspace" && !box.value && index > 0){
+        boxes[index - 1].focus();
+        boxes[index - 1].value = "";
+        updateOtpUiState();
+      }
+    });
+
+    box.addEventListener("paste", (e)=>{
+      e.preventDefault();
+
+      const pasted = (e.clipboardData || window.clipboardData)
+        .getData("text")
+        .replace(/\D/g,"")
+        .slice(0,6);
+
+      if (!pasted) return;
+
+      boxes.forEach((b, i) => {
+        b.value = pasted[i] || "";
+      });
+
+      const nextEmpty = boxes.find(b => !b.value);
+      if (nextEmpty) nextEmpty.focus();
+      else boxes[boxes.length - 1].focus();
+
+      updateOtpUiState();
+    });
+  });
+}
+
+async function postJSON(payload){
+  const body = JSON.stringify({
+    company_id: COMPANY_ID,
+    ...(API_KEY && String(API_KEY).trim() ? { api_key: API_KEY } : {}),
+    ...payload
+  });
+
+  const r = await fetch(WEBAPP_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body
+  });
+
+  const t = await r.text();
+
+  if (t.trim().startsWith("<")) {
+    throw new Error("Servidor devolvió HTML. Primeros 120 chars: " + t.trim().slice(0,120));
+  }
+
+  return JSON.parse(t);
+}
+
+async function loadCatalog(){
+  const r = await fetch(
+    WEBAPP_URL + "?action=catalog&company_id=" + encodeURIComponent(COMPANY_ID)
+  );
+  const text = await r.text();
+
+  if (text.trim().startsWith("<")) {
+    throw new Error("Catalog devolvió HTML. Primeros 120 chars: " + text.trim().slice(0,120));
+  }
+
+  const data = JSON.parse(text);
+  if (!data.ok) throw new Error(data.error || "No se pudo cargar catálogo");
+
+  catalog = data;
+
+  applyBookingIndustryTheme_();
+
+  updateBrandingFromCatalog_();
+
+  const programs = (catalog.programs || [])
+    .filter(p => p.active !== false)
+    .filter(p => String(p.program_id || "").trim().toUpperCase() !== "ALQUILER_EMPRESAS");
+
+  el("program").innerHTML = programs
+    .map(p => `<option value="${p.program_id}">${p.name}</option>`)
+    .join("");
+
+  if (!programs.length) {
+    throw new Error("No hay programas disponibles.");
+  }
+
+  const d = new Date();
+  const today = d.toISOString().slice(0,10);
+  el("date").value = today;
+  el("date").min = today;
+
+  refreshAllByProgram();
+}
+
+
+function getSelectedProgram(){
+  const pid = el("program").value;
+  return (catalog.programs || []).find(p => p.program_id === pid) || null;
+}
+
+function refreshService(){
+  const p = getSelectedProgram();
+
+  const allowed = p?.allowed_services?.length
+    ? new Set((p.allowed_services || []).map(x => String(x || "").trim()))
+    : null;
+
+  const services = (catalog.services || []).filter(s => {
+    const sid = String(s.service_id || "").trim();
+    return !allowed || allowed.has(sid);
+  });
+
+  el("service").innerHTML = services.length
+    ? services.map(s => `<option value="${s.service_id}">${s.name}</option>`).join("")
+    : `<option value="">Sin servicios disponibles</option>`;
+}
+
+function refreshResource(){
+  const p = getSelectedProgram();
+  const serviceId = String(el("service").value || "").trim();
+
+  const s = (catalog.services || []).find(x =>
+    String(x.service_id || "").trim() === serviceId
+  );
+
+  if (!s) {
+    el("resource").innerHTML = `<option value="">Sin recursos disponibles</option>`;
+    return;
+  }
+
+  const allowedRes = p?.allowed_resources?.length
+    ? new Set((p.allowed_resources || []).map(x => String(x || "").trim()))
+    : null;
+
+  let list = (catalog.resources || []).filter(r =>
+    String(r.resource_type || "").trim().toUpperCase() ===
+    String(s.resource_type || "").trim().toUpperCase()
+  );
+
+  if (allowedRes && allowedRes.size) {
+    list = list.filter(r =>
+      allowedRes.has(String(r.resource_id || "").trim())
+    );
+  }
+
+  el("resource").innerHTML = list.length
+    ? list.map(r => `<option value="${r.resource_id}">${r.name}</option>`).join("")
+    : `<option value="">Sin recursos disponibles</option>`;
+}
+
+function refreshInstructor(){
+  const p = getSelectedProgram();
+  const serviceId = String(el("service").value || "").trim();
+
+  const allowedInstructorIds = p?.allowed_instructors?.length
+    ? new Set((p.allowed_instructors || []).map(x => String(x || "").trim()))
+    : null;
+
+  const list = (catalog.instructors || [])
+    .filter(i => i.active !== false)
+    .filter(i => {
+      const iid = String(i.instructor_id || "").trim();
+      return !allowedInstructorIds || allowedInstructorIds.has(iid);
+    })
+    .filter(i => {
+      const allowedServices = Array.isArray(i.allowed_services)
+        ? i.allowed_services.map(x => String(x || "").trim())
+        : [];
+      return serviceId ? allowedServices.includes(serviceId) : true;
+    });
+
+  el("instructor").innerHTML = list.length
+    ? list.map(i => `<option value="${i.instructor_id}">${i.name}</option>`).join("")
+    : `<option value="">Sin personal disponible</option>`;
+}
+
+
+
+function refreshAllByProgram(){
+  refreshService();
+  refreshResource();
+  refreshInstructor();
+  refreshDuration();
+}
+
+
+function refreshDuration(){
+  const serviceId = String(el("service").value || "").trim();
+
+  const s = (catalog.services || []).find(x =>
+    String(x.service_id || "").trim() === serviceId
+  );
+
+  el("duration").textContent = s ? `${s.duration_min} min` : "—";
+}
+
+
+function renderSlots(slots){
+  el("slots").innerHTML = "";
+  el("cardConfirm").classList.add("hidden");
+  selectedSlot = null;
+  updateSlotAvailability(null);
+
+  if(!slots || !slots.length){
+    setMsg("SIN HORARIOS DISPONIBLES","err");
+    return;
+  }
+
+  setMsg(`HORARIOS DISPONIBLES: ${slots.length}`,"ok");
+
+  slots.forEach(s=>{
+    const b = document.createElement("button");
+    b.className = "slot";
+    b.type = "button";
+    b.innerHTML = buildSlotProgress_(s);
+    b.setAttribute("aria-label", slotLabel(s));
+    b.onclick = ()=>{
+      document.querySelectorAll(".slot").forEach(x=>x.classList.remove("selected"));
+      b.classList.add("selected");
+      selectedSlot = s;
+      updateSlotAvailability(s);
+      updateSystemStatus();
+      showConfirm(); 
+    };
+    el("slots").appendChild(b);
+  });
+}
+
+function selectionSummaryHtml(){
+  const sv = catalog.services.find(x=>x.service_id===el("service").value);
+  const rc = catalog.resources.find(x=>x.resource_id===el("resource").value);
+  const ins = catalog.instructors.find(x=>x.instructor_id===el("instructor").value);
+  return `
+    <div><b>SERVICIO</b> ${sv ? sv.name : ""}</div>
+    <div><b>RECURSO</b> ${rc ? rc.name : ""}</div>
+    <div><b>INSTRUCTOR</b> ${ins ? ins.name : ""}</div>
+    <div><b>FECHA</b> ${el("date").value}</div>
+    <div><b>HORA</b> ${selectedSlot ? slotLabel(selectedSlot) : ""}</div>`;
+}
+
+function showOtpCard(){
+  resetOtpState();
+  el("otpSummary").innerHTML = selectionSummaryHtml();
+  el("cardOtp").classList.remove("hidden");
+  el("cardConfirm").classList.add("hidden");
+  setOtpMsg("Ingresa nombre + email y solicita el OTP.", "warnTxt");
+   updateOtpUiState();
+
+}
+
+function showConfirm(){
+  if(!otpVerified){
+    el("cardConfirm").classList.add("hidden");
+    return;
+  }
+
+  const isAero = getBusinessType().includes("aero");
+
+  el("summary").innerHTML = selectionSummaryHtml() + `
+    <div style="margin-top:10px;"><b>ALUMNO</b> ${verifiedName}</div>
+    <div><b>EMAIL</b> ${verifiedEmail}</div>
+
+    <div style="margin-top:14px;">
+      <b style="
+        background: linear-gradient(180deg, #e0f2fe, #38bdf8, #075985);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        letter-spacing: .14em;
+      ">
+        ${getBusinessMessage()}
+      </b>
+
+      ${isAero ? `
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <span style="width:5px;height:20px;border-radius:2px;
+            background:linear-gradient(180deg,#fff3b0,#fbbf24,#b45309);
+            box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.35);"></span>
+
+          <span style="width:5px;height:20px;border-radius:2px;
+            background:linear-gradient(180deg,#fff3b0,#fbbf24,#b45309);
+            box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.35);"></span>
+
+          <span style="width:5px;height:20px;border-radius:2px;
+            background:linear-gradient(180deg,#fff3b0,#fbbf24,#b45309);
+            box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.35);"></span>
+
+          <span style="width:5px;height:20px;border-radius:2px;
+            background:linear-gradient(180deg,#fff3b0,#fbbf24,#b45309);
+            box-shadow:0 0 0 1px rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.35);"></span>
+        </div>
+      ` : ``}
+    </div>
+  `;
+
+  el("cardConfirm").classList.remove("hidden");
+}
+
+// Reset UI cuando cambian selects
+["program","service","instructor","resource"].forEach(id=>{
+  el(id).onchange = ()=>{
+    if(id === "program"){
+      refreshAllByProgram();
+    }
+
+    if(id === "service"){
+      refreshResource();
+      refreshInstructor();
+      refreshDuration();
+    }
+
+    el("slots").innerHTML = "";
+    selectedSlot = null;
+    updateSlotAvailability(null);
+    setMsg("");
+    el("cardConfirm").classList.add("hidden");
+    updateSystemStatus();
+  };
+});
+
+el("date").onchange = ()=>{
+  const v = el("date").value;
+  const today = new Date().toISOString().slice(0,10);
+
+  if (v && v < today) {
+    el("date").value = today;
+    setMsg("⛔ No puedes consultar fechas pasadas.", "err");
+    return;
+  }
+
+  el("slots").innerHTML = "";
+  selectedSlot = null;
+  updateSlotAvailability(null);
+  setMsg("Cambia la fecha y vuelve a consultar disponibilidad.", "muted");
+  el("cardConfirm").classList.add("hidden");
+  updateSystemStatus();
+};
+
+// ✅ Consultar disponibilidad (POST -> action: availability)
+// ✅ Consultar disponibilidad (POST -> action: availability)
+el("btnAvailability").onclick = async ()=>{
+  try{
+
+    const v = el("date").value;
+const today = new Date().toISOString().slice(0,10);
+
+if (!el("program").value){
+  setMsg("⛔ Selecciona un programa.", "err");
+  return;
+}
+
+if (!el("service").value){
+  setMsg("⛔ Selecciona un servicio válido.", "err");
+  return;
+}
+
+if (!el("resource").value){
+  setMsg("⛔ Selecciona un recurso válido.", "err");
+  return;
+}
+
+if (!el("instructor").value){
+  setMsg("⛔ Selecciona un instructor válido.", "err");
+  return;
+}
+
+if (!v){
+  setMsg("⛔ Selecciona una fecha.", "err");
+  return;
+}
+
+if (v < today){
+  setMsg("⛔ No puedes consultar fechas pasadas.", "err");
+  return;
+}
+
+    setMsg("CONSULTANDO...");
+
+    const r = await postJSON({
+      action:"availability",
+      program_id: el("program").value,
+      service_id: el("service").value,
+      resource_id: el("resource").value,
+      instructor_id: el("instructor").value,
+      date: el("date").value
+    });
+
+    if(!r.ok){
+      const extra = r.detail ? " | " + JSON.stringify(r.detail) : "";
+      setMsg((r.error || "Error") + extra, "err");
+      return;
+    }
+    renderSlots(r.slots);
+
+  }catch(e){
+    setMsg(String(e), "err");
+  }
+};
+
+// ✅ Enviar OTP (POST -> action: otpRequest)
+el("btnSendOtp").onclick = async ()=>{
+  try{
+    const name = normalizeName(el("studentName").value);
+    const email = normalizeEmail(el("studentEmail").value);
+
+    if(!isValidName(name)){
+      setOtpMsg("⛔ Debes ingresar nombre y al menos un apellido.", "err");
+      updateOtpUiState();
+      return;
+    }
+
+    if(!isValidEmail(email)){
+      setOtpMsg("⛔ Email inválido.", "err");
+      updateOtpUiState();
+      return;
+    }
+
+    setOtpMsg("🛰️ Enviando OTP...");
+    el("btnSendOtp").disabled = true;
+
+    const r = await postJSON({
+      action: "otpRequest",
+      student_name: name,
+      student_email: email
+    });
+
+    if(!r.ok){
+      otpSent = false;
+
+      console.error("OTP REQUEST RESPONSE:", r);
+
+      const otpErrorMessage =
+        r.detail ||
+        r.message ||
+        r.error ||
+        "No se pudo enviar OTP";
+
+      setOtpMsg("⛔ " + otpErrorMessage, "err");
+      updateOtpUiState();
+      return;
+    }
+
+    otpSent = true;
+    otpLockedName = name;
+    otpLockedEmail = email;
+
+    lockStudentInputs(true);
+    el("btnResetOtp").disabled = false;
+
+    toggleOtpVerifyBlock(true);
+    toggleOtpBoxes(true);
+    setOtpBoxesEnabled(true);
+    focusFirstOtpBox();
+
+    setOtpMsg("✅ OTP enviado. Ahora ingresa el código recibido.", "ok");
+    updateOtpUiState();
+
+  }catch(e){
+    otpSent = false;
+
+    console.error("OTP REQUEST CLIENT ERROR:", e);
+
+    const otpClientError =
+      (e && e.message) ||
+      String(e);
+
+    setOtpMsg("⛔ " + otpClientError, "err");
+    updateOtpUiState();
+  }
+};
+
+// ✅ Reset (permitir cambiar nombre/email si se equivocó)
+el("btnResetOtp").onclick = ()=>{
+  resetOtpState();
+  lockStudentInputs(false);
+  el("btnResetOtp").disabled = true;
+  setOtpMsg("Puedes cambiar nombre/email y volver a enviar OTP.", "muted");
+};
+
+// ✅ Verificar OTP (POST -> action: otpVerify)
+el("btnVerifyOtp").onclick = async ()=>{
+  try{
+    const name = normalizeName(el("studentName").value);
+    const email = normalizeEmail(el("studentEmail").value);
+    const code = getOtpCodeFromBoxes();
+
+    if(!otpSent){
+      setOtpMsg("⛔ Primero debes solicitar el código OTP.", "err");
+      updateOtpUiState();
+      return;
+    }
+
+    if(name !== otpLockedName || email !== otpLockedEmail){
+      setOtpMsg("⛔ El nombre o email cambió. Solicita un nuevo código.", "err");
+      invalidateOtpFlow("Debes solicitar un nuevo código OTP.");
+      lockStudentInputs(false);
+      el("btnResetOtp").disabled = true;
+      updateOtpUiState();
+      return;
+    }
+
+    if(code.length !== 6){
+      setOtpMsg("⛔ OTP debe tener 6 dígitos.", "err");
+      updateOtpUiState();
+      return;
+    }
+
+    setOtpMsg("🧪 Verificando OTP...");
+    el("btnVerifyOtp").disabled = true;
+
+    const r = await postJSON({
+      action: "otpVerify",
+      student_name: name,
+      student_email: email,
+      otp_code: code
+    });
+
+    if(!r.ok){
+      setOtpMsg("⛔ " + (r.error || "OTP inválido"), "err");
+      clearOtpBoxes();
+      focusFirstOtpBox();
+      updateOtpUiState();
+      return;
+    }
+
+    OTP_SESSION_TOKEN = r.otp_session_token || "";
+    if(!OTP_SESSION_TOKEN){
+      setOtpMsg("⛔ No llegó otp_session_token del servidor. Verifica de nuevo.", "err");
+      updateOtpUiState();
+      return;
+    }
+
+    otpVerified = true;
+    verifiedName = name;
+    verifiedEmail = email;
+
+    setOtpMsg("✅ Email verificado. Ahora puedes continuar con tu reserva.", "ok");
+
+    el("cardBookingFlow").classList.remove("hidden");
+    el("cardOtp").classList.add("hidden");
+    el("cardConfirm").classList.add("hidden");
+
+    setMsg("✅ Email verificado. Ahora selecciona programa, servicio, recurso, instructor y fecha.", "ok");
+
+    updateSystemStatus();
+
+  }catch(e){
+    setOtpMsg("⛔ " + String(e), "err");
+    updateOtpUiState();
+  }
+};
+
+el("btnBackFromOtp").onclick = ()=>{
+  resetOtpState();
+  el("cardOtp").classList.remove("hidden");
+  setOtpMsg("Puedes cambiar tus datos y verificar de nuevo.", "muted");
+};
+
+el("btnBack").onclick = ()=>{
+  el("cardConfirm").classList.add("hidden");
+};
+
+
+
+function reservationSuccessText_(id, value){
+  const node = el(id);
+  if(node) node.textContent = String(value || "—");
+}
+
+function reservationSuccessSelectedText_(id){
+  const node = el(id);
+  return String(node?.selectedOptions?.[0]?.textContent || node?.value || "").trim();
+}
+
+function reservationSuccessDateText_(isoOrDate){
+  const raw = String(isoOrDate || "").trim();
+  if(!raw) return "—";
+  try{
+    const d = new Date(raw.length === 10 ? raw + "T00:00:00" : raw);
+    if(!isNaN(d.getTime())) return d.toLocaleDateString("es-CO", {day:"2-digit",month:"2-digit",year:"numeric"});
+  }catch(e){}
+  return raw;
+}
+
+function reservationSuccessTimeText_(slot){
+  slot = slot || {};
+  const direct = String(slot.label || slot.time || slot.time_label || "").trim();
+  if(direct) return direct;
+  const startRaw = String(slot.start_iso || slot.start || "").trim();
+  const endRaw = String(slot.end_iso || slot.end || "").trim();
+  try{
+    const start = startRaw ? new Date(startRaw) : null;
+    const end = endRaw ? new Date(endRaw) : null;
+    const fmt = d => d && !isNaN(d.getTime()) ? d.toLocaleTimeString("es-CO", {hour:"2-digit",minute:"2-digit",hour12:false}) : "";
+    const a = fmt(start), b = fmt(end);
+    if(a && b) return a + " - " + b;
+    if(a) return a;
+  }catch(e){}
+  return "—";
+}
+
+function showReservationSuccess_(r, emailMsg){
+  r = r || {};
+  const successCard = el("cardReservationSuccess");
+  if(!successCard) return;
+
+  reservationSuccessText_("reservationSuccessCompany", String(el("brandTitle")?.textContent || "ALOTAR Booking").trim());
+  reservationSuccessText_("reservationSuccessCode", "Código: " + String(r.booking_id || r.bookingId || "—"));
+  reservationSuccessText_("reservationSuccessProgram", reservationSuccessSelectedText_("program"));
+  reservationSuccessText_("reservationSuccessService", reservationSuccessSelectedText_("service"));
+  reservationSuccessText_("reservationSuccessResource", reservationSuccessSelectedText_("resource"));
+  reservationSuccessText_("reservationSuccessInstructor", reservationSuccessSelectedText_("instructor"));
+  reservationSuccessText_("reservationSuccessDate", reservationSuccessDateText_(selectedSlot?.start_iso || el("date")?.value));
+  reservationSuccessText_("reservationSuccessTime", reservationSuccessTimeText_(selectedSlot));
+  reservationSuccessText_("reservationSuccessStudent", verifiedName);
+  reservationSuccessText_("reservationSuccessEmail", verifiedEmail);
+  reservationSuccessText_("reservationSuccessNotice", emailMsg || "Reserva creada correctamente.");
+
+  const sourceLogo = el("brandLogoImg");
+  const targetLogo = el("reservationSuccessLogo");
+  if(targetLogo){
+    const src = String(sourceLogo?.src || "").trim();
+    if(src){ targetLogo.src = src; targetLogo.style.display = "block"; }
+    else { targetLogo.style.display = "none"; }
+  }
+
+  el("cardBookingFlow")?.classList.add("hidden");
+  el("cardOtp")?.classList.add("hidden");
+  el("cardConfirm")?.classList.add("hidden");
+  successCard.classList.remove("hidden");
+
+  requestAnimationFrame(()=>{
+    successCard.scrollIntoView({behavior:"smooth", block:"center"});
+  });
+}
+
+function finishReservationSuccess_(){
+  const actions = document.querySelector("#cardReservationSuccess .reservationSuccessActions");
+  if(actions) actions.classList.add("hidden");
+  reservationSuccessText_("reservationSuccessNotice", "✅ Reserva finalizada. Puedes cerrar esta ventana con seguridad.");
+}
+
+function newReservationFromSuccess_(){
+  // Reinicio seguro del flujo dentro del mismo Web App.
+  // Evita window.location.reload(), que puede perder el contexto
+  // del deployment de Google Apps Script y dejar la pantalla en blanco.
+  const successCard = el("cardReservationSuccess");
+  const actions = document.querySelector("#cardReservationSuccess .reservationSuccessActions");
+
+  if(actions) actions.classList.remove("hidden");
+  if(successCard) successCard.classList.add("hidden");
+
+  // Limpiar selección operacional de la reserva anterior.
+  selectedSlot = null;
+  const slotsNode = el("slots");
+  if(slotsNode) slotsNode.innerHTML = "";
+  updateSlotAvailability(null);
+  setMsg("");
+  setReserveMsg("");
+
+  // Reiniciar completamente la identidad/OTP, como una nueva sesión de reserva.
+  resetOtpState();
+
+  const nameInput = el("studentName");
+  const emailInput = el("studentEmail");
+  if(nameInput) nameInput.value = "";
+  if(emailInput){
+    emailInput.value = "";
+    emailInput.disabled = true;
+  }
+
+  verifiedName = "";
+  verifiedEmail = "";
+  OTP_SESSION_TOKEN = "";
+
+  // Mostrar nuevamente el punto inicial del portal.
+  const otpCard = el("cardOtp");
+  const bookingCard = el("cardBookingFlow");
+  const confirmCard = el("cardConfirm");
+  if(otpCard) otpCard.classList.remove("hidden");
+  if(bookingCard) bookingCard.classList.add("hidden");
+  if(confirmCard) confirmCard.classList.add("hidden");
+
+  const otpSummary = el("otpSummary");
+  if(otpSummary) otpSummary.innerHTML = "";
+
+  setOtpMsg("Ingresa nombre + email y solicita un nuevo código.", "muted");
+  updateOtpUiState();
+  updateSystemStatus();
+
+  requestAnimationFrame(()=>{
+    otpCard?.scrollIntoView({behavior:"smooth", block:"start"});
+    setTimeout(()=> nameInput?.focus(), 220);
+  });
+}
+
+
+const __btnReservationSuccessFinish = el("btnReservationSuccessFinish");
+if(__btnReservationSuccessFinish) __btnReservationSuccessFinish.onclick = finishReservationSuccess_;
+const __btnReservationSuccessNew = el("btnReservationSuccessNew");
+if(__btnReservationSuccessNew) __btnReservationSuccessNew.onclick = newReservationFromSuccess_;
+
+// ✅ Confirmar reserva (POST -> action: reserve)
+el("btnReserve").onclick = async ()=>{
+  try{
+    if(!selectedSlot || !selectedSlot.start_iso){
+      setReserveMsg("⛔ Selecciona un horario primero.", "err");
+      return;
+    }
+    if(!otpVerified){
+      setReserveMsg("⛔ Debes verificar OTP primero.", "err");
+      return;
+    }
+
+    
+
+    setReserveMsg("🛰️ Registrando reserva...");
+
+    const r = await postJSON({
+      action: "reserve",
+      program_id: el("program").value,           // 👈 NUEVO
+      program_name: el("program").selectedOptions[0]?.textContent || "",
+      service_id: el("service").value,
+      resource_id: el("resource").value,
+      instructor_id: el("instructor").value,
+      start_iso: selectedSlot.start_iso,
+      student_name: verifiedName,
+      student_email: verifiedEmail,
+      otp_session_token: OTP_SESSION_TOKEN,
+      skip_otp: ACADEMY_PREFILL && !!String(REBOOK_PREFILL.academy_session || "").trim(),
+      academy_session: String(REBOOK_PREFILL.academy_session || "").trim(),
+      booking_origin: ACADEMY_PREFILL ? "ACADEMY" : "BOOKING",
+      booking_channel: ACADEMY_PREFILL ? "STUDENT_PORTAL" : "PUBLIC",
+      academy_booking: ACADEMY_PREFILL,
+      student_id: String(REBOOK_PREFILL.student_id || REBOOK_PREFILL.student_uid || "").trim()
+    });
+
+    if(!r.ok){
+      const extra = r.detail ? " | " + String(r.detail) : "";
+      setReserveMsg("⛔ " + (r.error || "No se pudo reservar") + extra, "err");
+      return;
+    }
+
+    const emailOk = r.email_sent && r.email_instructor_sent;
+
+    let emailMsg = "";
+
+    if (emailOk) {
+      emailMsg = "📧 Notificaciones enviadas correctamente.";
+    } else {
+      emailMsg = "⚠️ No se pudieron enviar algunos correos de notificación en este momento.";
+    }
+
+    setReserveMsg(
+      `✅ Reserva confirmada. Código: ${r.booking_id}\n\n${emailMsg}`,
+      "ok"
+    );
+
+    // V5: la reserva YA fue creada. Desde aquí solo cambia la presentación.
+    showReservationSuccess_(r, emailMsg);
+
+    OTP_SESSION_TOKEN = "";
+    clearOtpBoxes();
+  }catch(e){
+    setReserveMsg("⛔ " + String(e), "err");
+  }
+};
+
+el("studentName").addEventListener("input", ()=>{
+  const currentName = normalizeName(el("studentName").value);
+  const currentEmail = normalizeEmail(el("studentEmail").value);
+
+  const nameOk = updateNameEmailFlow();
+
+  if (
+    otpSent &&
+    (
+      currentName !== otpLockedName ||
+      currentEmail !== otpLockedEmail
+    )
+  ){
+    invalidateOtpFlow("Cambiaste nombre o email. Debes solicitar un nuevo código.");
+    lockStudentInputs(false);
+    el("btnResetOtp").disabled = true;
+  }
+
+  updateOtpUiState();
+
+  if (nameOk && el("studentEmail").disabled === false){
+    // opcional: enfocar email cuando el nombre ya sea válido
+    // el("studentEmail").focus();
+  }
+});
+
+el("studentEmail").addEventListener("input", ()=>{
+  el("studentEmail").value = normalizeEmail(el("studentEmail").value);
+
+  const currentName = normalizeName(el("studentName").value);
+  const currentEmail = normalizeEmail(el("studentEmail").value);
+
+  if (
+    otpSent &&
+    (
+      currentName !== otpLockedName ||
+      currentEmail !== otpLockedEmail
+    )
+  ){
+    invalidateOtpFlow("Cambiaste nombre o email. Debes solicitar un nuevo código.");
+    lockStudentInputs(false);
+    el("btnResetOtp").disabled = true;
+  }
+
+  updateOtpUiState();
+});
+
+(async()=>{
+  try{
+    if (!validateStandaloneConfig_()) {
+      throw new Error("Falta configurar WEBAPP_URL o COMPANY_ID en config.js");
+    }
+
+    const bootMsg = el("bootMsg");
+    if (bootMsg) {
+      bootMsg.textContent = COMPANY_NAME
+        ? `Cargando ${COMPANY_NAME}...`
+        : "Inicializando sistema...";
+    }
+    el("pill").textContent = "🟡 INICIANDO";
+    el("pill").style.color = "#fbbf24";
+    
+    setupOtpBoxes();
+    await loadCatalog();
+
+    applyRebookPrefillIfAny();
+
+    if (!otpVerified) {
+      setMsg("SISTEMA LISTO","ok");
+    }
+
+    updateSystemStatus();
+    finishBootScreen_();
+  }catch(e){
+    const bootMsg = el("bootMsg");
+    if (bootMsg) bootMsg.textContent = "No se pudo iniciar el sistema.";
+
+    el("pill").textContent = "🔴 ERROR";
+    el("pill").style.color = "#fb7185";
+    setMsg(String(e),"err");
+
+    finishBootScreen_();
+  }
+})();
+
+
+
+/* =====================================================
+   ALOTAR Booking · Validación visual de saldo cuando viene desde Academy
+   La validación definitiva ocurre en 07_Reserve.gs antes de crear la reserva.
+===================================================== */
+function academyIndexMoney_(v){
+  if(typeof v === 'number') return isNaN(v) ? 0 : v;
+  var s = String(v || '').replace(/COP/gi,'').replace(/\$/g,'').replace(/\s/g,'').trim();
+  if(!s) return 0;
+  if(s.indexOf(',') >= 0 && s.indexOf('.') >= 0) s = s.replace(/\./g,'').replace(',', '.');
+  else s = s.replace(/,/g,'').replace(/\./g,'');
+  var n = Number(s || 0);
+  return isNaN(n) ? 0 : n;
+}
+function academyIndexSelectedServicePrice_(){
+  var sid = String(el('service')?.value || '').trim();
+  var s = (catalog && catalog.services || []).find(function(x){ return String(x.service_id || '').trim() === sid; }) || {};
+  return academyIndexMoney_(s.price || s.value || s.amount || s.service_price || s.valor || s.valor_servicio || 0);
+}
+async function academyIndexCheckBalance_(){
+  if(!ACADEMY_PREFILL) return {ok:true};
+  var servicePrice = academyIndexSelectedServicePrice_();
+  var payload = {
+    action:'academyStudentFinancialStatus',
+    academy_session:String(REBOOK_PREFILL.academy_session || '').trim(),
+    company_id:String(COMPANY_ID || REBOOK_PREFILL.company_id || '').trim(),
+    student_id:String(REBOOK_PREFILL.student_id || REBOOK_PREFILL.student_uid || '').trim(),
+    student_email:String(REBOOK_PREFILL.student_email || '').trim(),
+    student_name:String(REBOOK_PREFILL.student_name || '').trim(),
+    program_id:String(el('program')?.value || REBOOK_PREFILL.program_id || '').trim(),
+    program_name:String(el('program')?.selectedOptions?.[0]?.textContent || REBOOK_PREFILL.program_name || '').trim()
+  };
+  var r = await postJSON(payload);
+  if(!r || !r.ok){
+    return {ok:false,error:(r && r.error) || 'No se pudo validar saldo Academy'};
+  }
+  var d = r.summary || r.financial || r;
+  var approved = academyIndexMoney_(d.total_approved || d.total_paid || d.approved_payments || d.approved_total || 0);
+  var consumed = academyIndexMoney_(d.consumed_value || d.completed_reservations_value || d.completed_value || 0);
+  var available = Math.max(0, academyIndexMoney_(d.available_balance || d.operational_balance || (approved - consumed)));
+  if(servicePrice > 0 && available < servicePrice){
+    return {
+      ok:false,
+      error:'Saldo insuficiente para este servicio.',
+      available:available,
+      required:servicePrice,
+      missing:Math.max(0, servicePrice - available)
+    };
+  }
+  return {ok:true,available:available,required:servicePrice};
+}
+function academyIndexBalanceErrorText_(x){
+  x = x || {};
+  if(x.available !== undefined){
+    return '⛔ ' + (x.error || 'Saldo insuficiente') + ' Disponible: COP ' + Math.round(x.available).toLocaleString('es-CO') + ' · Requerido: COP ' + Math.round(x.required || 0).toLocaleString('es-CO') + '.';
+  }
+  return '⛔ ' + (x.error || 'Saldo insuficiente para reservar desde Academy.');
+}
+
+const __academyIndexBtnAvailability = el('btnAvailability').onclick;
+el('btnAvailability').onclick = async function(){
+  try{
+    if(ACADEMY_PREFILL){
+      setMsg('Validando saldo Academy...');
+      var bal = await academyIndexCheckBalance_();
+      if(!bal.ok){ setMsg(academyIndexBalanceErrorText_(bal),'err'); return; }
+    }
+  }catch(e){ setMsg('⛔ ' + String(e.message || e),'err'); return; }
+  return __academyIndexBtnAvailability.apply(this, arguments);
+};
+
+const __academyIndexBtnReserve = el('btnReserve').onclick;
+el('btnReserve').onclick = async function(){
+  try{
+    if(ACADEMY_PREFILL){
+      setReserveMsg('Validando saldo Academy...');
+      var bal = await academyIndexCheckBalance_();
+      if(!bal.ok){ setReserveMsg(academyIndexBalanceErrorText_(bal),'err'); return; }
+    }
+  }catch(e){ setReserveMsg('⛔ ' + String(e.message || e),'err'); return; }
+  return __academyIndexBtnReserve.apply(this, arguments);
+};
+
+
+/* =====================================================
+   ALOTAR Booking PWA · Bootstrap
+===================================================== */
+function validateStandaloneConfig_(){
+  const missing = [];
+  if (!WEBAPP_URL) missing.push("WEBAPP_URL");
+  if (!COMPANY_ID) missing.push("COMPANY_ID");
+
+  if (missing.length){
+    console.error("Configuración incompleta:", missing);
+    const bootMsg = el("bootMsg");
+    if (bootMsg) {
+      bootMsg.textContent = missing.includes("COMPANY_ID")
+        ? "No se identificó la empresa. Abre el enlace de reservas suministrado por la empresa."
+        : "Configuración incompleta: " + missing.join(", ");
+    }
+  }
+  return missing.length === 0;
+}
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(reg => console.log("ALOTAR PWA Service Worker activo:", reg.scope))
+      .catch(err => console.warn("No se pudo registrar Service Worker:", err));
+  });
+}
+
+</script>
+
+</body>
+</html>
