@@ -2802,6 +2802,7 @@ const APP_CONFIG = window.ALOTAR_CONFIG || {};
 const WEBAPP_URL = String(APP_CONFIG.WEBAPP_URL || "").trim();
 const API_KEY = String(APP_CONFIG.API_KEY || "").trim();
 const COMPANY_NAME = String(APP_CONFIG.COMPANY_NAME || "ALOTAR Booking").trim();
+const PWA_BUILD = "ALOTAR-PWA-V8-2026-09-09";
 
 function readPrefillFromUrl_(){
   const params = new URLSearchParams(window.location.search || "");
@@ -4205,8 +4206,11 @@ if(__btnReservationSuccessFinish) __btnReservationSuccessFinish.onclick = finish
 const __btnReservationSuccessNew = el("btnReservationSuccessNew");
 if(__btnReservationSuccessNew) __btnReservationSuccessNew.onclick = newReservationFromSuccess_;
 
-// ✅ Confirmar reserva · PWA pública usa reservePwa; Academy conserva su ruta actual
+// ✅ Confirmar reserva · PWA V8: identifica explícitamente la ruta utilizada
 el("btnReserve").onclick = async ()=>{
+  const reserveAction = ACADEMY_PREFILL ? "reserve" : "reservePwa";
+  console.log("[ALOTAR PWA]", PWA_BUILD, "reserveAction:", reserveAction, "ACADEMY_PREFILL:", ACADEMY_PREFILL);
+
   try{
     if(!selectedSlot || !selectedSlot.start_iso){
       setReserveMsg("⛔ Selecciona un horario primero.", "err");
@@ -4219,10 +4223,10 @@ el("btnReserve").onclick = async ()=>{
 
     
 
-    setReserveMsg("🛰️ Registrando reserva...");
+    setReserveMsg(`🛰️ Registrando reserva... [${reserveAction}]`);
 
     const r = await postJSON({
-      action: ACADEMY_PREFILL ? "reserve" : "reservePwa",
+      action: reserveAction,
       program_id: el("program").value,           // 👈 NUEVO
       program_name: el("program").selectedOptions[0]?.textContent || "",
       service_id: el("service").value,
@@ -4242,7 +4246,7 @@ el("btnReserve").onclick = async ()=>{
 
     if(!r.ok){
       const extra = r.detail ? " | " + String(r.detail) : "";
-      setReserveMsg("⛔ " + (r.error || "No se pudo reservar") + extra, "err");
+      setReserveMsg(`⛔ [${reserveAction}] ` + (r.error || "No se pudo reservar") + extra, "err");
       return;
     }
 
@@ -4267,7 +4271,7 @@ el("btnReserve").onclick = async ()=>{
     OTP_SESSION_TOKEN = "";
     clearOtpBoxes();
   }catch(e){
-    setReserveMsg("⛔ " + String(e), "err");
+    setReserveMsg(`⛔ [${reserveAction}] ` + String(e), "err");
   }
 };
 
@@ -4463,8 +4467,11 @@ function validateStandaloneConfig_(){
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(reg => console.log("ALOTAR PWA Service Worker activo:", reg.scope))
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+      .then(reg => {
+        console.log("ALOTAR PWA Service Worker activo:", reg.scope, PWA_BUILD);
+        reg.update().catch(()=>{});
+      })
       .catch(err => console.warn("No se pudo registrar Service Worker:", err));
   });
 }
