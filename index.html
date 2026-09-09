@@ -4205,7 +4205,7 @@ if(__btnReservationSuccessFinish) __btnReservationSuccessFinish.onclick = finish
 const __btnReservationSuccessNew = el("btnReservationSuccessNew");
 if(__btnReservationSuccessNew) __btnReservationSuccessNew.onclick = newReservationFromSuccess_;
 
-// ✅ Confirmar reserva (POST -> action: reserve)
+// ✅ Confirmar reserva · PWA pública usa reservePwa; Academy conserva su ruta actual
 el("btnReserve").onclick = async ()=>{
   try{
     if(!selectedSlot || !selectedSlot.start_iso){
@@ -4222,7 +4222,7 @@ el("btnReserve").onclick = async ()=>{
     setReserveMsg("🛰️ Registrando reserva...");
 
     const r = await postJSON({
-      action: "reserve",
+      action: ACADEMY_PREFILL ? "reserve" : "reservePwa",
       program_id: el("program").value,           // 👈 NUEVO
       program_name: el("program").selectedOptions[0]?.textContent || "",
       service_id: el("service").value,
